@@ -1,0 +1,4 @@
+2023-03-21 18:21:24,604 AriseAPIController     - Username is Required,Password Name is Required
+2023-03-21 19:07:37,029 AriseAPIController     - The underlying provider failed on Open.
+2023-03-21 19:23:05,798 AriseAPIController     - Invalid UserId
+2023-03-21 19:23:33,897 AriseAPIController     - Invalid UserId

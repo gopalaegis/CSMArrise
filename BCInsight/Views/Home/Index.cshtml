@@ -1,0 +1,107 @@
+﻿@using BCInsight.Web.HelperClass
+
+@{
+    ViewBag.Title = "Home Page";
+    var currentUser = Utility.CurrentLoginUser;
+    if (currentUser == null)
+    {
+        Response.Redirect(Url.Action("Index", "Login", new { Area = "" }));
+    }
+}
+<style>
+    .card-body {
+        padding: 10px !important;
+    }
+
+    .tab-pane .card {
+        min-height: 360px;
+        height: 100%;
+        margin-bottom: 0px;
+    }
+
+    .imagealign {
+        height: auto;
+        margin-bottom: 0px;
+    }
+
+    .text-sm .card-title {
+        font-size: 15px;
+    }
+
+    .content .row {
+        margin-bottom: 30px;
+    }
+
+    .users-list > li {
+        margin: 6px;
+        padding: 4px;
+    }
+
+    .monthlytopsaleperson::-webkit-scrollbar, .wrapper::-webkit-scrollbar, content-wrapper::-webkit-scrollbar {
+        display: none;
+    }
+
+    .imagealign img {
+        width: 80% !important
+    }
+
+    .donut-chart {
+        height: auto !important;
+        max-height: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .card-primary:not(.card-outline) > .card-header {
+        background-color: #14B0DC !important
+    }
+
+    .default-mdg {
+        display: flex;
+        align-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 10px;
+        justify-content: center;
+        height: 100%;
+        display: none;
+    }
+
+    .nodata-msg {
+        display: flex;
+        align-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 10px;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
+        min-height: 280px;
+    }
+
+    .default-mdg p {
+        padding: 10px;
+        text-align: center;
+        font-size: 14px;
+        word-break: break-all
+    }
+</style>
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-10">
+                <h1 class="m-0">Dashboard <span style="font-size:15Px">@*@Model.LastUpdated*@</span></h1>
+            </div><!-- /.col -->
+            <div class="col-sm-2">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("")">Home</a></li>
+                    @*<li class="breadcrumb-item active">Dashboard v2</li>*@
+                </ol>
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<!-- /.content-header -->

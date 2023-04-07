@@ -1,0 +1,18 @@
+2023-04-05 16:43:01,911 UserController         - System.FormatException: Input string was not in a correct format.
+   at System.Globalization.TimeSpanParse.TryParseByFormat(String input, String format, TimeSpanStyles styles, TimeSpanResult& result)
+   at System.Globalization.TimeSpanParse.TryParseExactTimeSpan(String input, String format, IFormatProvider formatProvider, TimeSpanStyles styles, TimeSpanResult& result)
+   at System.Globalization.TimeSpanParse.ParseExact(String input, String format, IFormatProvider formatProvider, TimeSpanStyles styles)
+   at System.TimeSpan.ParseExact(String input, String format, IFormatProvider formatProvider)
+   at BCInsight.Controllers.UserController.AddUser(UserViewModel model)
+2023-04-05 16:57:07,780 UserController         - System.FormatException: String was not recognized as a valid DateTime.
+   at System.DateTimeParse.ParseExact(String s, String format, DateTimeFormatInfo dtfi, DateTimeStyles style)
+   at System.DateTime.ParseExact(String s, String format, IFormatProvider provider)
+   at BCInsight.Controllers.UserController.AddUser(UserViewModel model)
+2023-04-05 17:12:25,627 UserController         - System.FormatException: String was not recognized as a valid DateTime.
+   at System.DateTimeParse.ParseExact(String s, String format, DateTimeFormatInfo dtfi, DateTimeStyles style)
+   at System.DateTime.ParseExact(String s, String format, IFormatProvider provider)
+   at BCInsight.Controllers.UserController.AddUser(UserViewModel model) in D:\Aegis Project\CSMArise_Admin\BCInsight\Controllers\UserController.cs:line 284
+2023-04-05 18:25:37,864 UserController         - System.FormatException: String was not recognized as a valid DateTime.
+   at System.DateTimeParse.ParseExact(String s, String format, DateTimeFormatInfo dtfi, DateTimeStyles style)
+   at System.DateTime.ParseExact(String s, String format, IFormatProvider provider)
+   at BCInsight.Controllers.UserController.AddUser(UserViewModel model) in D:\Aegis Project\CSMArise_Admin\BCInsight\Controllers\UserController.cs:line 292

@@ -1,0 +1,9 @@
+﻿@if (TempData["Notification"] != null)
+{
+    <div class="notification-container" id="notification-container">
+        <div id="NotificationBox" class="@TempData["NotificationCSS"]" style="display: none">
+            @TempData["Notification"]
+        </div>
+    </div>
+}
+

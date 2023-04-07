@@ -1,0 +1,278 @@
+﻿@model List<BCInsight.Models.AdvancePaymentViewModel>
+@{
+    ViewBag.Title = "Advance Payment";
+}
+
+<style>
+    .disableClick {
+        pointer-events: none !important;
+        cursor: default !important;
+    }
+</style>
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Advance Payment</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Home</a></li>
+                    <li class="breadcrumb-item active">Advance Payment</li>
+                </ol>
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <span class="error">@TempData["errorMessage"]</span>
+        <table id="example1" class="w-100 table-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Mobile</th>
+                    <th>Salary</th>
+                    <th>Request Amount</th>
+                    <th>Request Date</th>
+                    <th>Reason</th>
+                    <th>Approved Amount</th>
+                    <th>Approved Date</th>
+                    <th>Approve</th>
+                    <th>Remarks</th>
+                    <th width="70px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var rDate = item.CreatedOn != null ? item.CreatedOn.Value.ToString("dd-MM-yyyy hh:mm tt") : string.Empty;
+                    var aDate = item.ApprovedOn != null ? item.ApprovedOn.Value.ToString("dd-MM-yyyy hh:mm tt") : string.Empty;
+                    <tr>
+                        <td class="name">
+                            <input type="hidden" value="@item.Id" class="hdnId" />
+                            @item.UName
+                        </td>
+                        <td class="mobile">@item.UMobile</td>
+                        <td class="salary">@item.USalary</td>
+                        <td class="reqAmount">@item.RequestAmount</td>
+                        <td class="rqdate">@rDate</td>
+                        <td class="reason">@item.Reason</td>
+                        <td class="apAmount">@item.ApprovedAmount</td>
+                        <td class="apOn">@aDate</td>
+                        <td>
+                            @if (item.IsApprove)
+                            {
+                                <span>Yes</span>
+                            }
+                            else
+                            {
+                                <span>No</span>
+                            }
+                        </td>
+                        <td class="remarks">@item.Remarks</td>
+                        <td class="text-center">
+                            @if (string.IsNullOrEmpty(item.Remarks))
+                            {
+                                <span class="row">
+                                    <span class="col-sm-6">
+                                        <button type="button" data-toggle="modal" data-target="#exampleModal" data-id="@item.Id" data-approve="true" data-reqamount="@item.RequestAmount" style="background:none;border:none;"
+                                                onclick="openPaymentModel(this)">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </span>
+                                    <span class="col-sm-6" style="margin:-14px;">
+                                        <button type="button" data-toggle="modal" data-target="#exampleModal" data-id="@item.Id" data-approve="false" style="background: none; border: none;" onclick="openPaymentModel(this)">
+                                            <span style="font-size:30px;font-weight:bold;">&times;</span>
+                                        </button>
+                                    </span>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div>
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="exampleModalLabel"></h4>
+                            <button type="button" class="close dClose" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="approve" style="display:none;">
+                                <form>
+                                    <div class="row">
+                                        <div class="form-group col-sm-6">
+                                            <label for="recipient-name" class="control-label">Request Amount:</label>
+                                            <input type="text" class="form-control" id="reqAmount" disabled>
+                                        </div>
+                                        <div class="form-group col-sm-6">
+                                            <label for="recipient-name" class="control-label">Approve Amount:</label>
+                                            <input type="text" class="form-control" id="aprAmount" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="message-text" class="control-label">Remarks:</label>
+                                        <textarea class="form-control" id="a_remarks"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div id="reject" style="display:none;">
+                                <div class="form-group">
+                                    <label for="message-text" class="control-label">Remarks:</label>
+                                    <textarea class="form-control" id="r_remarks"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div id="divBtnApprove" style="display:none;">
+                                <button type="button" class="btn btn-default dClose" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary dClose" onclick="onSaveApproveClick()">Save</button>
+                            </div>
+                            <div id="divBtnReject" style="display:none;">
+                                <button type="button" class="btn btn-default dClose" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary dClose" onclick="onSaveRejectClick()">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.card-body -->
+</div>
+
+<!-- jQuery -->
+<script src="~/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $("#aprAmount").val('');
+        $("#remarks").val('');
+        $(".dClose").removeClass('disableClick');
+    });
+
+    $(function () {
+        $("#example1").DataTable({
+            "responsive": true,
+            "lengthChange": true,
+            "autoWidth": true,
+            "language": {
+                "emptyTable": "Record not found"
+            },
+            //"columnDefs": [
+            //    { "width": 80, "targets": 10 }
+            //]
+        });
+    });
+
+    var approveUrl = '', rejectUrl = '';
+    function openPaymentModel(e) {
+
+        $("#aprAmount").val('');
+        $("#aprAmount").removeClass("red-border");
+        $("#a_remarks").val('');
+        $("#a_remarks").removeClass("red-border");
+        $("#r_remarks").val('');
+        $("#r_remarks").removeClass("red-border");
+
+        var id = e.dataset.id;
+        var reqAmount = e.dataset.reqamount;
+        var approve = e.dataset.approve;
+        var title = '';
+
+        if (approve == 'true') {
+            title = 'Approve';
+            approveUrl = '';
+            approveUrl = '@Url.Action("Approve", "AdvancePayment")' + '?Id=' + id;
+
+            $("#approve").css("display", "block");
+            $("#divBtnApprove").css("display", "block");
+
+            $("#reject").css("display", "none");
+            $("#divBtnReject").css("display", "none");
+        }
+
+        if (approve == 'false') {
+            title = 'Reject';
+            rejectUrl = '';
+            rejectUrl = '@Url.Action("Reject", "AdvancePayment")' + '?Id=' + id;
+
+            $("#approve").css("display", "none");
+            $("#divBtnApprove").css("display", "none");
+
+            $("#reject").css("display", "block");
+            $("#divBtnReject").css("display", "block");
+        }
+
+        $('#exampleModal').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            modal.find('.modal-title').text(title);
+            modal.find(".modal-body input#reqAmount").val(reqAmount);
+        });
+    }
+
+    function onSaveApproveClick() {
+
+        var iserror = false;
+        var reqAmount = $("#reqAmount").val();
+        var apAmount = $("#aprAmount").val();
+        var remarks = $("#a_remarks").val();
+
+        if (apAmount == undefined || apAmount == null || apAmount == "" || apAmount == "0") {
+            $("#aprAmount").addClass("red-border");
+            iserror = true;
+        }
+
+        if (remarks == undefined || remarks == null || remarks == "") {
+            $("#a_remarks").addClass("red-border");
+            iserror = true;
+        }
+
+        if (parseFloat(apAmount) > parseFloat(reqAmount)) {
+            $("#aprAmount").addClass("red-border");
+            iserror = true;
+        }
+
+        if (!iserror) {
+            $(".dClose").addClass('disableClick');
+            approveUrl += '&&Amount=' + apAmount + '&&Remarks=' + remarks;
+            window.location.href = approveUrl;
+        }
+    }
+
+    function onSaveRejectClick() {
+        var remarks = $("#r_remarks").val();
+        if (remarks == undefined || remarks == null || remarks == "") {
+            $("#r_remarks").addClass("red-border");
+            return false;
+        }
+        else {
+            $(".dClose").addClass('disableClick');
+            $("#r_remarks").removeClass("red-border");
+            rejectUrl += '&&Remarks=' + remarks;
+            window.location.href = rejectUrl;
+        }
+    }
+
+    $("#aprAmount").blur(function () {
+        if ($(this).val() != "")
+            $("#aprAmount").removeClass("red-border");
+    });
+    $("#a_remarks").blur(function () {
+        if ($(this).val() != "")
+            $("#a_remarks").removeClass("red-border");
+    });
+    $("#r_remarks").blur(function () {
+        if ($(this).val() != "")
+            $("#r_remarks").removeClass("red-border");
+    });
+</script>

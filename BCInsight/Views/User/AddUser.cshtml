@@ -1,0 +1,631 @@
+﻿@model BCInsight.Models.UserViewModel
+
+<html>
+<head>
+
+    @*<link href="~/Content/jquery.datetimepicker.css" rel="stylesheet" />*@
+    <link href="~/Content/jquery.timepicker.min.css" rel="stylesheet" />
+    <style>
+        .red-border {
+            border: 1px solid red;
+        }
+
+        .dropdown-check-list {
+            display: inline-block;
+            width: 100%;
+        }
+
+        .anchor {
+            user-select: none;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .dropdown-check-list .anchor {
+            position: relative;
+            cursor: pointer;
+            display: inline-block;
+            padding: 5px 30px 5px 15px;
+            border: 1px solid #ccc;
+            width: 100%;
+        }
+
+            .dropdown-check-list .anchor:after {
+                position: absolute;
+                content: "";
+                border-left: 2px solid black;
+                border-top: 2px solid black;
+                padding: 5px;
+                right: 10px;
+                top: 20%;
+                -moz-transform: rotate(-135deg);
+                -ms-transform: rotate(-135deg);
+                -o-transform: rotate(-135deg);
+                -webkit-transform: rotate(-135deg);
+                transform: rotate(-135deg);
+            }
+
+            .dropdown-check-list .anchor:active:after {
+                right: 8px;
+                top: 21%;
+            }
+
+        .dropdown-check-list ul.items {
+            padding: 5px 10px 2px 10px;
+            display: none;
+            margin: 0;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+
+        .dropdown-check-list1 ul.items1 {
+            padding: 5px 10px 2px 10px;
+            display: none;
+            margin: 0;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+
+        .dropdown-check-list ul.items li {
+            list-style: none;
+        }
+
+        .dropdown-check-list.visible .anchor {
+            color: black;
+        }
+
+        .dropdown-check-list.visible .items {
+            display: block;
+        }
+
+        /*second code department*/
+
+        .dropdown-check-list1 {
+            display: inline-block;
+            width: 100%;
+        }
+
+        .anchor1 {
+            user-select: none;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .dropdown-check-list1 .anchor1 {
+            position: relative;
+            cursor: pointer;
+            display: inline-block;
+            padding: 5px 30px 5px 15px;
+            border: 1px solid #ccc;
+            width: 100%;
+        }
+
+            .dropdown-check-list1 .anchor1:after {
+                position: absolute;
+                content: "";
+                border-left: 2px solid black;
+                border-top: 2px solid black;
+                padding: 5px;
+                right: 10px;
+                top: 20%;
+                -moz-transform: rotate(-135deg);
+                -ms-transform: rotate(-135deg);
+                -o-transform: rotate(-135deg);
+                -webkit-transform: rotate(-135deg);
+                transform: rotate(-135deg);
+            }
+
+            .dropdown-check-list1 .anchor1:active:after {
+                right: 8px;
+                top: 21%;
+            }
+
+        .dropdown-check-list1 ul.items1 {
+            padding: 5px 10px 2px 10px;
+            display: none;
+            margin: 0;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+
+            .dropdown-check-list1 ul.items1 li {
+                list-style: none;
+            }
+
+        .dropdown-check-list1.visible .anchor1 {
+            color: black;
+        }
+
+        .dropdown-check-list1.visible .items1 {
+            display: block;
+        }
+
+        .opmListItem {
+            margin: 0px;
+            padding-left: 5px;
+            font-weight: normal !important;
+            user-select: none;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .DEPTListItem {
+            margin: 0px;
+            padding-left: 5px;
+            font-weight: normal !important;
+            user-select: none;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .btnDisable {
+            pointer-events: none !important;
+            cursor: default !important;
+            background-color: lightgray !important;
+            border: none;
+            color: black;
+        }
+
+        .ui-timepicker-wrapper {
+            width: -webkit-fill-available !important;
+            right: 37px !important;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">User</h1>
+                </div><!-- /.col -->
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Home</a></li>
+                        <li class="breadcrumb-item active"><a href="@Url.Action("Index","Site")">User</a></li>
+                    </ol>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+    <!-- Horizontal Form -->
+    <div class="card card-info">
+        <div class="card-header">
+            @if (Model.UserId != 0)
+            {
+                <h3 class="card-title">Update - User</h3>
+            }
+            else
+            {
+                <h3 class="card-title">Add - User</h3>
+            }
+            <a type="button" class="float-right" href="@Url.Action("Index","User")">BACK <i class="fas fa-reply"></i></a>
+        </div>
+        <!-- /.card-header -->
+        <!-- form start -->
+        @using (Html.BeginForm("AddUser", "User", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.HiddenFor(c => c.UserId)
+
+            <div class="card-body">
+                <span class="error errorMsg"></span>
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Name<span class="requiredSign">*</span></label>
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(c => c.Name, new { @type = "text", @class = "form-control", placeholder = "User Full Name", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.Name, "", new { @class = "error" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">UserName<span class="requiredSign">*</span></label>
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(c => c.UserName, new { @type = "text", @class = "form-control", placeholder = "Create UserName for login", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "error" })
+                    </div>
+                </div>
+                @if (Model.UserId > 0)
+                {
+                    <div class="form-group row">
+                        <label for="inputEmail3" class="col-sm-2 col-form-label">Password<span class="requiredSign">*</span></label>
+                        <div class="col-sm-10">
+                            @Html.TextBoxFor(c => c.Password, new { @type = "text", @class = "form-control", placeholder = "Password", autocomplete = "off" })
+                            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "error" })
+                        </div>
+                    </div>
+                }
+
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Mobile<span class="requiredSign">*</span></label>
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(c => c.Mobile, new { @type = "text", @class = "form-control", placeholder = "Mobile", @maxLength = "40", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.Mobile, "", new { @class = "error" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Email</label>
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(c => c.Email, new { @type = "text", @class = "form-control", placeholder = "Email", @maxLength = "40", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "error" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Role<span class="requiredSign">*</span></label>
+                    <div class="col-sm-10">
+                        @Html.HiddenFor(c => c.Role)
+                        <select class="form-control" id="ddlRole" onchange="onChangeRole()">
+                            <option value="">Select Role</option>
+                            @if (Model.UserId > 0)
+                            {
+                                if (!string.IsNullOrEmpty(Model.Role) && Model.Role.Trim().Replace(" ", "").ToLower() == "admin")
+                                {
+                                    <option value="admin" selected>Admin</option>
+                                }
+                                else
+                                {
+                                    <option value="admin">Admin</option>
+                                }
+
+                                if (!string.IsNullOrEmpty(Model.Role) && Model.Role.Trim().Replace(" ", "").ToLower() == "manager")
+                                {
+                                    <option value="manager" selected>Manager</option>
+                                }
+                                else
+                                {
+                                    <option value="manager">Manager</option>
+                                }
+                                if (!string.IsNullOrEmpty(Model.Role) && Model.Role.Trim().Replace(" ", "").ToLower() == "employee")
+                                {
+                                    <option value="employee" selected>Employee</option>
+                                }
+                                else
+                                {
+                                    <option value="employee">Employee</option>
+                                }
+                            }
+                            else
+                            {
+                                <option value="admin">Admin</option>
+                                <option value="manager">Manager</option>
+                                <option value="employee">Employee</option>
+                            }
+                        </select>
+                    </div>
+                    <span class="error roleError"></span>
+                </div>
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Salary<span class="requiredSign">*</span></label>
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(c => c.Salary, new { @type = "text", @class = "form-control", placeholder = "Salary", @maxLength = "40", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.Salary, "", new { @class = "error" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Site<span class="requiredSign">*</span></label>
+                    <div class="col-sm-10">
+                        <div id="list1" class="dropdown-check-list" tabindex="100">
+                            @Html.HiddenFor(x => x.SiteName)
+                            <span class="anchor form-control" id="spanOPM">Select Site</span>
+                            <ul class="items" id="ulOPMItem">
+                                @if (ViewBag.SiteList != null)
+                                {
+                                    var list = (List<SelectListItem>)ViewBag.siteList;
+                                    if (list == null)
+                                    {
+                                        <li>
+                                            <label class="opmListItem">No site found</label>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in list)
+                                        {
+                                            string id = "Id_" + item.Value;
+                                            if (item.Selected)
+                                            {
+                                                <li>
+                                                    <input type="checkbox" name="@item.Text" class="cbOPM" id="@id" value="@item.Value" checked="checked">
+                                                    <label for="@id" class="opmListItem">@item.Text</label>
+                                                </li>
+                                            }
+                                            else
+                                            {
+                                                <li>
+                                                    <input type="checkbox" name="@item.Text" class="cbOPM" id="@id" value="@item.Value">
+                                                    <label for="@id" class="opmListItem">@item.Text</label>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                    <span class="error roleError"></span>
+                </div>
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Department<span class="requiredSign">*</span></label>
+                    <div class="col-sm-10">
+                        <div id="list2" class="dropdown-check-list1" tabindex="100">
+                            @Html.HiddenFor(x => x.DepartmentName)
+                            <span class="anchor1 form-control" id="spanDOPM">Select Department</span>
+                            <ul class="items1" id="ulDOPMItem">
+                                @if (ViewBag.department != null)
+                                {
+                                    var deptlist = (List<SelectListItem>)ViewBag.department;
+                                    if (deptlist == null)
+                                    {
+                                        <li>
+                                            <label class="DEPTListItem">No Department found</label>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in deptlist)
+                                        {
+                                            string deptid = "deptId_" + item.Value;
+                                            if (item.Selected)
+                                            {
+                                                <li>
+                                                    <input type="checkbox" name="@item.Text" class="dept" id="@deptid" value="@item.Value" checked="checked">
+                                                    <label for="@deptid" class="DEPTListItem">@item.Text</label>
+                                                </li>
+                                            }
+                                            else
+                                            {
+                                                <li>
+                                                    <input type="checkbox" name="@item.Text" class="dept" id="@deptid" value="@item.Value">
+                                                    <label for="@deptid" class="DEPTListItem">@item.Text</label>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                    <span class="error roleError"></span>
+                </div>
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Managar</label>
+                    <div class="col-sm-10">
+                        @Html.DropDownListFor(c => c.ManagerId, new SelectList(ViewBag.ManagerList, "Value", "Text"), "Select Manager", new { @class = "form-control", @id = "userlist" })
+                        @Html.ValidationMessageFor(m => m.ManagerId, "", new { @class = "error" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">StartTime</label>
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(c => c.StartTime, new { @type = "text", @class = "form-control", placeholder = "StartTime", @id = "starttime" })
+                        @Html.ValidationMessageFor(m => m.StartTime, "", new { @class = "error" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">EndTime</label>
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(c => c.EndTime, new { @type = "text", @class = "form-control", placeholder = "EndTime", @id = "endtime" })
+                        @Html.ValidationMessageFor(m => m.EndTime, "", new { @class = "error" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Weekly Off Day<span class="requiredSign">*</span></label>
+                    @Html.HiddenFor(x => x.WeekOffDay)
+                    <div class="col-sm-10">
+                        <select name="week" id="weekdays" class="form-control">
+                            <option value="" selected>Select Week Off Day</option>
+                            <option value="monday">MONDAY</option>
+                            <option value="tuesday">TUESDAY</option>
+                            <option value="wednesday">WEDNESDAY</option>
+                            <option value="thursday">THURSDAY</option>
+                            <option value="friday">FRIDAY</option>
+                            <option value="saturday">SATURDAY</option>
+                            <option value="sunday">SUNDAY</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer">
+                @if (Model.UserId == 0)
+                {
+                    <button type="button" id="btnSave" class="btn btn-primary">SAVE</button>
+                }
+                else
+                {
+                    <button type="button" id="btnSave" class="btn btn-primary">UPDATE</button>
+                }
+                <a type="button" href="@Url.Action("Index","User")" class="btn btn-default float-right">
+                    CANCEL
+                </a>
+            </div>
+            <!-- /.card-footer -->
+        }
+    </div>
+</body>
+</html>
+
+
+<script>
+
+    $(document).ready(function () {
+        debugger;
+        var selectedDay = $("#WeekOffDay").val();
+        if (selectedDay != "" || selectedDay != undefined) {
+            $('#weekdays').val(selectedDay);
+        }
+
+        $(".errorMsg").text('');
+        var checkList = document.getElementById('list1');
+        checkList.getElementsByClassName('anchor')[0].onclick = function (evt) {
+            if (checkList.classList.contains('visible'))
+                checkList.classList.remove('visible');
+            else
+                checkList.classList.add('visible');
+        }
+        var DEPTcheckList = document.getElementById('list2');
+        DEPTcheckList.getElementsByClassName('anchor1')[0].onclick = function (evt) {
+            if (DEPTcheckList.classList.contains('visible'))
+                DEPTcheckList.classList.remove('visible');
+            else
+                DEPTcheckList.classList.add('visible');
+        }
+
+    });
+
+    $('input[name="Mobile"]').keyup(function (e) {
+        if (/\D/g.test(this.value)) {
+            this.value = this.value.replace(/\D/g, '');
+        }
+    });
+    $('input[name="Salary"]').keyup(function (e) {
+        if (/\D/g.test(this.value)) {
+            this.value = this.value.replace(/\D/g, '');
+        }
+    });
+
+    function onChangeRole() {
+
+        var role = $("#ddlRole").val();
+        if (role == "") {
+            $("select").addClass("red-border");
+            $("#Role").val('');
+        }
+        else {
+            $("select").removeClass("red-border");
+            $("#Role").val(role);
+        }
+    }
+
+    $("input").blur(function () {
+        if ($.trim($(this).val()) != "") {
+            $(this).removeClass("red-border");
+        }
+    });
+
+    $("#btnSave").click(function () {
+        debugger;
+        $(".errorMsg").text('');
+
+        var id = 0;
+        id = parseInt($("#UserId").val());
+        var name = $("#Name").val();
+        var username = $("#UserName").val();
+        var mobile = $("#Mobile").val();
+        var email = $("#Email").val();
+        var role = $("#ddlRole").val();
+        var salary = $("#Salary").val();
+        var managerId = $("#userlist").val();
+        var password = $("#Password").val();
+        var starttime = $("#starttime").val();
+        var endtime = $("#endtime").val();
+        var weekdays = $("#weekdays").val();
+
+        var siteIds = '';
+        $(".cbOPM").each(function (e, i) {
+            if (i.checked)
+                siteIds = siteIds + "," + i.value;
+        });
+        var deptIds = '';
+        $(".dept").each(function (e, i) {
+            if (i.checked)
+                deptIds = deptIds + "," + i.value;
+        });
+
+        var iserror = false;
+        if (name == '') {
+            iserror = true;
+            $("#Name").addClass("red-border");
+        }
+        if (username == '') {
+            iserror = true;
+            $("#UserName").addClass("red-border");
+        }
+        if (mobile == '') {
+            iserror = true;
+            $("#Mobile").addClass("red-border");
+        }
+        if (role == '') {
+            iserror = true;
+            $("#ddlRole").addClass("red-border");
+        }
+        if (salary == '') {
+            iserror = true;
+            $("#Salary").addClass("red-border");
+        }
+        if (siteIds == '') {
+            iserror = true;
+            $("#list1").addClass("red-border");
+        }
+        if (deptIds == '') {
+            iserror = true;
+            $("#list2").addClass("red-border");
+        }
+        if (weekdays == '') {
+            iserror = true;
+            $("#weekdays").addClass("red-border");
+        }
+        else {
+            $("#weekdays").removeClass("red-border");
+        }
+
+        if (!iserror) {
+
+            var model = {
+                UserId: id,
+                Name: name,
+                UserName: username,
+                Mobile: mobile,
+                Email: email,
+                Role: role,
+                SiteName: siteIds,
+                Salary: salary,
+                DepartmentIds: deptIds,
+                ManagerId : managerId,
+                Password: password,
+                StartTime: starttime,
+                EndTime: endtime,
+                WeekOffDay: weekdays
+            };
+
+            $.ajax({
+                type: 'post',
+                data: model,
+                url: '@Url.Action("AddUser","User")',
+                success: function (data) {
+
+                    $(".errorMsg").text('');
+                    if (!data.Item1) {
+                        $(".errorMsg").text(data.Item2);
+                    }
+                    else {
+                        var url = '@Url.Action("Index","User")';
+                        window.location.href = url;
+                    }
+                }
+            });
+        }
+    });
+
+</script>
+
+<script src="~/Scripts/jquery.timepicker.min.js"></script>
+<script type="text/javascript">
+
+    $("#starttime").timepicker();
+    $('#starttime').keydown(function (e) {
+        e.preventDefault();
+        return false;
+    });
+    $("#endtime").timepicker();
+    $('#endtime').keydown(function (e) {
+        e.preventDefault();
+        return false;
+    });
+</script>

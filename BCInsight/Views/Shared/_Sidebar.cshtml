@@ -1,0 +1,95 @@
+﻿@using BCInsight.Web.HelperClass
+@{
+    var currentUser = Utility.CurrentLoginUser;
+
+}
+
+<style>
+    ul {
+        list-style-type: none;
+    }
+</style>
+
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-dark-primary elevation-4 text-sm ">
+    <!-- Brand Logo -->
+    <a href="@Url.Action("Index","Home")" class="brand-link text-center">
+        @*<img src="~/Images/Herbal.jpg" alt="BlueClub-Insight" class="img-circle elevation-3" style="opacity: .8; margin-top: 0.4rem;">*@
+        <span class="brand-text font-weight-light text-uppercase font-weight-bold" style="font-size:20Px">
+            CSM Arise
+        </span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                <li class="nav-item">
+                    <a href="@Url.Action("Index","AdvancePayment")" class="nav-link">
+                        <p>Advanced Payment</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("Index","AttendanceRequest")" class="nav-link">
+                        <p>Attendance Request</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("Index","Site")" class="nav-link">
+                        <p>Site</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("Index","User")" class="nav-link">
+                        <p>User</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("Index","LeaveRequest")" class="nav-link">
+                        <p>Leave Request</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("Index","Department")" class="nav-link">
+                        <p>Department</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("Index","Holiday")" class="nav-link">
+                        <p>Holiday</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("Index","Task")" class="nav-link">
+                        <p>Task</p>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+</aside>
+<script type="text/javascript">
+       var fullurl = window.location;
+
+       var currentUrl = '@ViewData["ActiveUrl"]';
+       if (currentUrl != null && currentUrl != '') {
+           fullurl = currentUrl;
+
+
+           var parentAnchor = $('.mt-2 ul li ul li a[href="' + fullurl + '"]').parent();
+           $(parentAnchor).addClass('activeMenu');
+
+           let opendialog = parentAnchor.parent().parent();
+           $(opendialog).addClass("menu-is-opening menu-open");
+
+           $($('.mt-2 ul li ul li a[href="' + fullurl + '"] i')).removeClass("far");
+           $($('.mt-2 ul li ul li a[href="' + fullurl + '"] i')).addClass("fa");
+
+           var parentAnchor = $('.mt-2 ul li a[href="' + fullurl + '"]').parent();
+           $(parentAnchor).addClass('activeMenu');
+       }
+</script>

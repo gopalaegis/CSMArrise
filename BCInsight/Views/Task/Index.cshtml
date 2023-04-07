@@ -1,0 +1,101 @@
+﻿@model List<BCInsight.Models.TaskViewModel>
+@{
+
+}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Task</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Home</a></li>
+                    <li class="breadcrumb-item active">Task</li>
+                </ol>
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title float-right">
+            <a href="@Url.Action("AddTask","Task")" type="button" class="btn btn-primary btn-block btn-sm "><i class="fa fa-plus"></i> ADD</a>
+        </h3>
+    </div>
+    <div class="card-body">
+        <span class="error">@TempData["errorMessage"]</span>
+        <span style="color:green">@TempData["success"]</span>
+
+        <table id="example1" class="w-100 table-bordered">
+            <thead>
+                <tr>
+                    <th>Department Name</th>
+                    <th>Task Name</th>
+                    <th>Remarks</th>
+                    <th>IsForManager</th>
+                    <th width="70px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var rDate = item.CreatedOn != null ? item.CreatedOn.Value.ToString("dd-MM-yyyy hh:mm") : string.Empty;
+
+                    <tr>
+                        <td class="name">
+                            <input type="hidden" value="@item.TaskDeptId" class="hdnId" />
+                            @item.DeptName
+                        </td>
+                        <td class="taskname">@item.TaskName</td>
+                        <td class="remarks">@item.TaskRemarks</td>
+                        <td>
+                            @if (item.IsForManager)
+                            {
+                                <span>Yes</span>
+                            }
+                        </td>
+
+                        <td>
+                            @if (!item.IsDeleted)
+                            {
+                                <a href="@Url.Action("AddTask", "Task", new { Id = item.TaskId })" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <span onclick="return confirm('Are you sure to delete ?')">
+                                    <a href="@Url.Action("DeleteTask", "Task", new { Id = item.TaskDeptId})" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <!-- /.card-body -->
+</div>
+
+<!-- jQuery -->
+<script src="~/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(function () {
+        $("#example1").DataTable({
+            "responsive": true,
+            "lengthChange": true,
+            "autoWidth": true,
+            "language": {
+                "emptyTable": "Record not found"
+            },
+            //"columnDefs": [
+            //    { "width": 80, "targets": 10 }
+            //]
+        });
+    });
+</script>
+
+

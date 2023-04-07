@@ -1,0 +1,291 @@
+﻿@model List<BCInsight.Models.ClockInRequestViewModel>
+@{
+    ViewBag.Title = "Attendance Request";
+}
+
+<style>
+    .disableClick {
+        pointer-events: none !important;
+        cursor: default !important;
+    }
+</style>
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Attendance Request</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Home</a></li>
+                    <li class="breadcrumb-item active">Attendance Request</li>
+                </ol>
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <span class="error">@TempData["errorMessage"]</span>
+        <table id="example1" class="w-100 table-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Mobile</th>
+                    <th>Date</th>
+                    <th>CheckIn</th>
+                    <th>CheckOut</th>
+                    <th>Reason</th>
+                    <th>Description</th>
+                    <th>Remarks</th>
+                    <th>Is Approved</th>
+                    <th width="70px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var date = item.Date != null ? item.Date.ToString("dd-MM-yyyy") : string.Empty;
+                    var clockin = item.ClockIn != null ? item.ClockIn.Value.ToString("hh:mm tt") : string.Empty;
+                    var clockout = item.ClockOut != null ? item.ClockOut.Value.ToString("hh:mm tt") : string.Empty;
+
+                    <tr>
+                        <td class="name">
+                            <input type="hidden" value="@item.Id" class="hdnId" />
+                            @item.UserName
+                        </td>
+                        <td class="mobile">@item.UserMobile</td>
+                        <td class="date">@date</td>
+                        <td class="checkin">@clockin</td>
+                        <td class="checkout">@clockout</td>
+                        <td class="reason">@item.Reason</td>
+                        <td class="reason">@item.Description</td>
+                        <td class="remarks">@item.Remarks</td>
+                        <td>
+                            @if (item.Approved)
+                            {
+                                <span>Yes</span>
+                            }
+                            else
+                            {
+                                <span>No</span>
+                            }
+                        </td>
+                        <td class="text-center">
+                            @if (item.Approved && (item.ClockIn == null || item.ClockOut == null))
+                            {
+                                <span class="row">
+                                    <span class="col-sm-6">
+                                        <button type="button" style="background:none; border:none;" data-target="#exampleModal" data-toggle="modal" data-id="@item.Id" data-approve="true" onclick="openModel(this)">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </span>
+                                    <span class="col-sm-6" style="margin:-14px;">
+                                        <button type="button" style="background:none; border:none;" data-target="#exampleModal" data-toggle="modal" data-id="@item.Id" data-approve="false" onclick="openModel(this)">
+                                            <span style="font-size:30px;font-weight:bold;">&times;</span>
+                                        </button>
+                                    </span>
+                                </span>
+                            }
+                            else
+                            {
+                                if (string.IsNullOrWhiteSpace(item.Remarks))
+                                {
+                                    <span class="row">
+                                        <span class="col-sm-6">
+                                            <button type="button" style="background:none; border:none;" data-target="#exampleModal" data-toggle="modal" data-id="@item.Id" data-approve="true" onclick="openModel(this)">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </span>
+                                        <span class="col-sm-6" style="margin:-14px;">
+                                            <button type="button" style="background:none; border:none;" data-target="#exampleModal" data-toggle="modal" data-id="@item.Id" data-approve="false" onclick="openModel(this)">
+                                                <span style="font-size:30px;font-weight:bold;">&times;</span>
+                                            </button>
+                                        </span>
+                                    </span>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div>
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="exampleModalLabel"></h4>
+                            <button type="button" class="close dClose" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="approve" style="display:none;">
+                                <div class="form-group">
+                                    <select id="checkType" class="form-control" onchange="onChangeType()">
+                                        <option value="" class="text-bold" selected>Select Check Type</option>
+                                        <option value="checkin">Check In</option>
+                                        <option value="checkout">Check Out</option>
+                                        <option value="both">Both</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="message-text" class="control-label">Remarks:</label>
+                                    <textarea class="form-control" id="a_remarks"></textarea>
+                                </div>
+                            </form>
+                            <form id="reject" style="display:none;">
+                                <div class="form-group">
+                                    <label for="message-text" class="control-label">Remarks:</label>
+                                    <textarea class="form-control" id="r_remarks"></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <div id="divBtnApprove" style="display:none;">
+                                <button type="button" class="btn btn-default dClose" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary dClose" onclick="onSaveApproveClick()">Save</button>
+                            </div>
+                            <div id="divBtnReject" style="display:none;">
+                                <button type="button" class="btn btn-default dClose" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary dClose" onclick="onSaveRejectClick()">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.card-body -->
+</div>
+
+<!-- jQuery -->
+<script src="~/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#remarks").val('');
+        $(".dClose").removeClass('disableClick');
+    });
+
+    $(function () {
+        $("#example1").DataTable({
+            "responsive": true,
+            "lengthChange": true,
+            "autoWidth": true,
+            "language": {
+                "emptyTable": "Record not found"
+            },
+            //"columnDefs": [
+            //    { "width": 80, "targets": 9 }
+            //]
+        });
+    });
+
+    var approveUrl = '', rejectUrl = '';
+    function openModel(e) {
+
+        $("#a_remarks").val('');
+        $("#a_remarks").removeClass("red-border");
+        $("#remarks").val('');
+        $("#remarks").removeClass("red-border");
+
+        var id = e.dataset.id;
+        var approve = e.dataset.approve;
+        var title = '';
+
+        if (approve == 'true') {
+            title = 'Approve';
+            approveUrl = '';
+            approveUrl = '@Url.Action("Approve", "AttendanceRequest")' + '?Id=' + id;
+
+            $("#approve").css("display", "block");
+            $("#divBtnApprove").css("display", "block");
+
+            $("#reject").css("display", "none");
+            $("#divBtnReject").css("display", "none");
+        }
+
+        if (approve == 'false') {
+            title = 'Reject';
+            rejectUrl = '';
+            rejectUrl = '@Url.Action("Reject", "AttendanceRequest")' + '?Id=' + id;
+
+            $("#approve").css("display", "none");
+            $("#divBtnApprove").css("display", "none");
+
+            $("#reject").css("display", "block");
+            $("#divBtnReject").css("display", "block");
+        }
+
+        $('#exampleModal').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            modal.find('.modal-title').text(title);
+        });
+    }
+
+    $("#a_remarks").blur(function () {
+
+        if ($(this).val() != "")
+            $("#a_remarks").removeClass("red-border");
+    });
+    $("#r_remarks").blur(function () {
+
+        if ($(this).val() != "")
+            $("#r_remarks").removeClass("red-border");
+    });
+    function onChangeType() {
+
+        if ($("#checkType").val() != "")
+            $("#checkType").removeClass("red-border");
+        else
+            $("#checkType").addClass("red-border");
+    }
+
+    function onSaveApproveClick() {
+
+        var error = false;
+        var type = $("#checkType").val();
+        var remarks = $("#a_remarks").val();
+
+        if (type == undefined || type == null || type == "") {
+            $("#checkType").addClass("red-border");
+            error = true;
+        }
+        else {
+            $("#checkType").removeClass("red-border");
+        }
+
+        if (remarks == undefined || remarks == null || remarks == "") {
+            $("#a_remarks").addClass("red-border");
+            error = true;
+        }
+        else {
+            $("#a_remarks").removeClass("red-border");
+        }
+
+        if (!error) {
+            approveUrl += '&&Remarks=' + remarks + '&&Type=' + type;
+            $(".dClose").addClass('disableClick');
+            window.location.href = approveUrl;
+        }
+    }
+
+    function onSaveRejectClick() {
+
+        var remarks = $("#r_remarks").val();
+        if (remarks == undefined || remarks == null || remarks == "") {
+            $("#r_remarks").addClass("red-border");
+            return false;
+        }
+        else {
+            $("#r_remarks").removeClass("red-border");
+            $(".dClose").addClass('disableClick');
+            rejectUrl += '&&Remarks=' + remarks;
+            window.location.href = rejectUrl;
+        }
+    }
+</script>

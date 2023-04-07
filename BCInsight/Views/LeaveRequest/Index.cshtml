@@ -1,0 +1,272 @@
+﻿@model List<BCInsight.Models.LeaveRequestViewModel>
+@{
+    ViewBag.Title = "Advance Payment";
+}
+
+<style>
+    .disableClick {
+        pointer-events: none !important;
+        cursor: default !important;
+    }
+</style>
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Leave Request</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Home</a></li>
+                    <li class="breadcrumb-item active">Leave Request</li>
+                </ol>
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <span class="error">@TempData["errorMessage"]</span>
+        <table id="example1" class="w-100 table-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>FromDate</th>
+                    <th>ToDate</th>
+                    <th>Total Days</th>
+                    <th>Reason</th>
+                    <th>Approved Days</th>
+                    <th>Status</th>
+                    <th>Remarks</th>
+                    <th width="70px"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var fromDate = item.FromDate != null ? item.FromDate.ToString("dd-MM-yyyy") : string.Empty;
+                    var toDate = item.ToDate != null ? item.ToDate.ToString("dd-MM-yyyy") : string.Empty;
+                    <tr>
+                        <td class="name">
+                            <input type="hidden" value="@item.Id" class="hdnId" />
+                            <input type="hidden" value="@item.UserId" class="hdnUserId" />
+                            @item.UserName
+                        </td>
+                        <td class="fromDate">@fromDate</td>
+                        <td class="toDate">@toDate</td>
+                        <td class="totalDays">@item.NoOfDays</td>
+                        <td class="reason">@item.Reason</td>
+                        <td class="approveDays">@item.ApproveDays</td>
+                        <td>
+                            @if (item.IsApproved == null)
+                            {
+                                <span style="color:black;">Pending</span>
+                            }
+                            else
+                            {
+                                if (item.IsApproved.Value)
+                                {
+                                    <span style="color:green; font-weight:bold;">Approve</span>
+                                }
+                                else
+                                {
+                                    <span style="color: orangered; font-weight: bold;">Reject</span>
+                                }
+                            }
+                        </td>
+                        <td class="remarks">@item.Remarks</td>
+                        <td class="text-center">
+                            @if (item.IsApproved == null)
+                            {
+                                <span class="row">
+                                    <span class="col-sm-6">
+                                        <button type="button" data-toggle="modal" data-target="#exampleModal" data-id="@item.Id" data-approve="true" data-totaldays="@item.NoOfDays" style="background:none;border:none;"
+                                                onclick="openLeaveModel(this)">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </span>
+                                    <span class="col-sm-6" style="margin:-14px;">
+                                        <button type="button" data-toggle="modal" data-target="#exampleModal" data-id="@item.Id" data-approve="false" style="background: none; border: none;" onclick="openLeaveModel(this)">
+                                            <span style="font-size:30px;font-weight:bold;">&times;</span>
+                                        </button>
+                                    </span>
+                                </span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div>
+            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="exampleModalLabel"></h4>
+                            <button type="button" class="close dClose" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="approve" style="display:none;">
+                                <form>
+                                    <div class="row">
+                                        <div class="form-group col-sm-6">
+                                            <label for="recipient-name" class="control-label">Total Days:</label>
+                                            <input type="number" class="form-control" id="totaldays" disabled>
+                                        </div>
+                                        <div class="form-group col-sm-6">
+                                            <label for="recipient-name" class="control-label">Approve Days:</label>
+                                            <input type="number" class="form-control" id="approvedays" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="message-text" class="control-label">Remarks:</label>
+                                        <textarea class="form-control" id="a_remarks"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div id="reject" style="display:none;">
+                                <div class="form-group">
+                                    <label for="message-text" class="control-label">Remarks:</label>
+                                    <textarea class="form-control" id="r_remarks"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div id="divBtnApprove" style="display:none;">
+                                <button type="button" class="btn btn-default dClose" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary dClose" onclick="onApproveLeave()">Save</button>
+                            </div>
+                            <div id="divBtnReject" style="display:none;">
+                                <button type="button" class="btn btn-default dClose" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary dClose" onclick="onRejectLeave()">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.card-body -->
+</div>
+
+<!-- jQuery -->
+<script src="~/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $("#aprAmount").val('');
+        $("#remarks").val('');
+        $(".dClose").removeClass('disableClick');
+    });
+
+    $(function () {
+        $("#example1").DataTable({
+            "responsive": true,
+            "lengthChange": true,
+            "autoWidth": true,
+            "language": {
+                "emptyTable": "Record not found"
+            }
+        });
+    });
+
+    var approveUrl = '', rejectUrl = '';
+    function openLeaveModel(e) {
+
+        $("#approvedays").val('');
+        $("#approvedays").removeClass("red-border");
+        $("#a_remarks").val('');
+        $("#a_remarks").removeClass("red-border");
+        $("#r_remarks").val('');
+        $("#r_remarks").removeClass("red-border");
+
+        var id = e.dataset.id;
+        var totaldays = e.dataset.totaldays;
+        var approve = e.dataset.approve;
+        var title = '';
+
+        if (approve == 'true') {
+            title = 'Approve';
+            approveUrl = '';
+            approveUrl = '@Url.Action("Approve", "LeaveRequest")' + '?Id=' + id;
+
+            $("#approve").css("display", "block");
+            $("#divBtnApprove").css("display", "block");
+
+            $("#reject").css("display", "none");
+            $("#divBtnReject").css("display", "none");
+        }
+
+        if (approve == 'false') {
+            title = 'Reject';
+            rejectUrl = '';
+            rejectUrl = '@Url.Action("Reject", "LeaveRequest")' + '?Id=' + id;
+
+            $("#approve").css("display", "none");
+            $("#divBtnApprove").css("display", "none");
+
+            $("#reject").css("display", "block");
+            $("#divBtnReject").css("display", "block");
+        }
+
+        $('#exampleModal').on('show.bs.modal', function (event) {
+            var modal = $(this);
+            modal.find('.modal-title').text(title);
+            modal.find(".modal-body input#totaldays").val(totaldays);
+        });
+    }
+
+    function onApproveLeave() {
+
+        var iserror = false;
+        var totaldays = $("#totaldays").val();
+        var approvedays = $("#approvedays").val();
+        var remarks = $("#a_remarks").val();
+
+        if (approvedays == undefined || approvedays == null || approvedays == "") {
+            $("#aprAmount").addClass("red-border");
+            iserror = true;
+        }
+        if (totaldays == undefined || totaldays == null || totaldays == "") {
+            totaldays = 0;
+            iserror = true;
+        }
+        totaldays = parseInt(totaldays);
+        approvedays = parseInt(approvedays);
+
+        if (approvedays <= 0 || (parseInt(approvedays) > parseInt(totaldays))) {
+            $("#aprAmount").addClass("red-border");
+            iserror = true;
+        }
+
+        if (!iserror) {
+            $(".dClose").addClass('disableClick');
+            approveUrl += '&&approveDays=' + approvedays + '&&Remarks=' + remarks;
+            window.location.href = approveUrl;
+        }
+    }
+
+    function onRejectLeave() {
+        var remarks = $("#r_remarks").val();
+        if (remarks == undefined || remarks == null || remarks == "") {
+            $("#r_remarks").addClass("red-border");
+            return false;
+        }
+        else {
+            $(".dClose").addClass('disableClick');
+            $("#r_remarks").removeClass("red-border");
+            rejectUrl += '&&Remarks=' + remarks;
+            window.location.href = rejectUrl;
+        }
+    }
+
+    $("#approvedays").blur(function () {
+        if ($(this).val() != "")
+            $("#approvedays").removeClass("red-border");
+    });
+</script>

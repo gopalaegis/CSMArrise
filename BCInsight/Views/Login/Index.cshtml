@@ -1,0 +1,92 @@
+﻿@model BCInsight.Models.UserViewModel
+@{
+    ViewBag.Title = "Index";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CSM Arise | Log in</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css">
+    <!-- icheck bootstrap -->
+    <link rel="stylesheet" href="~/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/dist/css/adminlte.min.css">
+</head>
+<body class="hold-transition login-page bg-transparent" style="background-repeat: no-repeat; background-size: 100% 100%; ">
+    <div class="login-box">
+        <div class="login-logo" style="font-weight:bold;">
+            <a href="@Url.Action("Index","Home")" style="color: #183f74">CSM Arise</a>
+        </div>
+        <!-- /.login-logo -->
+        <div class="card" style=" box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px; border-top: 4px solid #183f74; border-radius: 5px; ">
+            <div class="card-body login-card-body" style=" border-radius: 10px 10px 0 0">
+                <p class="login-box-msg">
+                    <img src="~/Images/login.jpg" style="height:50%; width:50%" />
+                </p>
+
+                @using (Html.BeginForm("LogIn", "Login", FormMethod.Post, new { enctype = "multipart/form-data", id = "loginForm" }))
+                {
+                    <div class="input-group mb-1">
+                        @Html.TextBoxFor(c => c.UserName, new { @type = "text", @class = "form-control", placeholder = "UserName or Mobile", @maxLength = "40" })
+                        @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "error" })
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-user" style="color: #183f74"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="input-group mb-3">
+                        @Html.TextBoxFor(c => c.Password, new { @type = "Password", @class = "form-control", placeholder = "Password", @maxLength = "50" })
+                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "error" })
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span id="lock" class="fas fa-lock" style="color: #183f74"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-block" style="background-color: #183f74">Sign In</button>
+                        </div>
+                        <div class="login-error" style="color:red;">@TempData["loginfail"]</div>
+                        <!-- /.col -->
+                    </div>
+                }
+            </div>
+            <!-- /.login-card-body -->
+        </div>
+    </div>
+    <!-- /.login-box -->
+    <!-- jQuery -->
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/dist/js/adminlte.min.js"></script>
+    <script>
+        $(function () {
+            //debugger;
+            $("#lock").click(function () {
+                if ($('#Password').attr("type") == "text") {
+                    $('#Password').attr('type', 'password');
+
+                }
+                else {
+                    $('#Password').attr('type', 'text');
+                }
+            });
+        });
+
+    </script>
+
+</body>
+</html>
+

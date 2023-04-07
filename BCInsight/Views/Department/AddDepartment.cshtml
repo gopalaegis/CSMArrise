@@ -1,0 +1,158 @@
+﻿@model BCInsight.Models.DepartmentViewModel
+
+<link href="~/Content/jquery.timepicker.min.css" rel="stylesheet" />
+<style>
+    .red-border {
+        border: 1px solid red;
+    }
+</style>
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Department</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Home</a></li>
+                    <li class="breadcrumb-item active"><a href="@Url.Action("Index","Department")">Department</a></li>
+                </ol>
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<!-- /.content-header -->
+<!-- Horizontal Form -->
+<div class="card card-info">
+    <div class="card-header">
+        @if (Model != null && Model.Id != 0)
+        {
+            <h3 class="card-title">Update - Department</h3>
+        }
+        else
+        {
+            <h3 class="card-title">Add - Department</h3>
+        }
+        <a type="button" class="float-right" href="@Url.Action("Index","Department")">BACK <i class="fas fa-reply"></i></a>
+    </div>
+    <!-- /.card-header -->
+    <!-- form start -->
+    @using (Html.BeginForm("AddDepartment", "Department", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.HiddenFor(c => c.Id)
+
+        <div class="card-body">
+            <span class="error errorMsg"></span>
+            <div class="form-group row">
+                <label for="inputEmail3" class="col-sm-2 col-form-label">Name<span class="requiredSign">*</span></label>
+                <div class="col-sm-10">
+                    @Html.TextBoxFor(c => c.Name, new { @type = "text", @class = "form-control", placeholder = "Name", autocomplete = "off" })
+                    @Html.ValidationMessageFor(m => m.Name, "", new { @class = "error" })
+                </div>
+            </div>
+            @*<div class="form-group row">
+                <label for="inputEmail3" class="col-sm-2 col-form-label">StartTime<span class="requiredSign">*</span></label>
+                <div class="col-sm-10">
+                    @Html.TextBoxFor(c => c.StartTime, new { @type = "text", @class = "form-control", placeholder = "StartTime", @id = "starttime" })
+                    @Html.ValidationMessageFor(m => m.StartTime, "", new { @class = "error" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputEmail3" class="col-sm-2 col-form-label">EndTime<span class="requiredSign">*</span></label>
+                <div class="col-sm-10">
+                    @Html.TextBoxFor(c => c.EndTime, new { @type = "text", @class = "form-control", placeholder = "EndTime", @id = "endtime" })
+                    @Html.ValidationMessageFor(m => m.EndTime, "", new { @class = "error" })
+                </div>
+            </div>*@
+            <div class="form-group row">
+                <label for="inputEmail3" class="col-sm-2 col-form-label">Remarks</label>
+                <div class="col-sm-10">
+                    @Html.TextAreaFor(c => c.Remarks, new { @type = "text", @class = "form-control", placeholder = "Remarks", @maxLength = "40", autocomplete = "off" })
+                    @Html.ValidationMessageFor(m => m.Remarks, "", new { @class = "error" })
+                </div>
+            </div>
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+            @if (Model.Id == 0)
+            {
+                <button type="button" id="btnSave" class="btn btn-primary">SAVE</button>
+            }
+            else
+            {
+                <button type="button" id="btnSave" class="btn btn-primary">UPDATE</button>
+            }
+            <a type="button" href="@Url.Action("Index","Department")" class="btn btn-default float-right">
+                CANCEL
+            </a>
+        </div>
+        <!-- /.card-footer -->
+    }
+</div>
+
+<script>
+    $("#btnSave").click(function () {
+        debugger;
+        $(".errorMsg").text('');
+
+        var id = 0;
+        id = parseInt($("#Id").val());
+        var name = $("#Name").val();
+        //var starttime = $("#starttime").val();
+        //var endtime = $("#endtime").val();
+        var remarks = $("#Remarks").val();
+
+        var iserror = false;
+        if (name == '') {
+            iserror = true;
+            $("#Name").addClass("red-border");
+        }
+//       
+
+        if (!iserror) {
+
+            var model = {
+                Name: name,
+                Remarks: remarks,
+                //StartTime: starttime,
+                //EndTime: endtime,
+            };
+
+            $.ajax({
+                type: 'post',
+                data: model,
+                url: '@Url.Action("AddDepartment", "Department")',
+                success: function (data) {
+
+                    $(".errorMsg").text('');
+                    if (!data.Item1) {
+                        $(".errorMsg").text(data.Item2);
+                    }
+                    else {
+                        var url = '@Url.Action("Index", "Department")';
+                        window.location.href = url;
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+@*<script src="~/Scripts/jquery.timepicker.min.js"></script>
+<script>
+    $("#starttime").timepicker({
+        //timeFormat: "H:i",
+    });
+    $('#starttime').keydown(function (e) {
+        e.preventDefault();
+        return false;
+    });
+    $("#endtime").timepicker({
+        //timeFormat: "H:i",
+    });
+    $('#endtime').keydown(function (e) {
+        e.preventDefault();
+        return false;
+    });
+</script>*@

@@ -1,0 +1,217 @@
+﻿@model BCInsight.Models.UserViewModel
+
+@{
+    ViewBag.Title = "Register User";
+}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+
+                <h1 class="m-0">Register User</h1>
+
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Home</a></li>
+                    <li class="breadcrumb-item active"><a href="@Url.Action("Users","Login")">User Management</a></li>
+                </ol>
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+<!-- /.content-header -->
+<!-- Horizontal Form -->
+<div class="card card-info">
+    <div class="card-header">
+        <h3 class="card-title">Register User</h3>
+        <a type="button" class="float-right" href="@Url.Action("Users","Login")">BACK <i class="fas fa-reply"></i></a>
+    </div>
+    <!-- /.card-header -->
+    <!-- form start -->
+    @using (Html.BeginForm("Register", "Login", FormMethod.Post, new { enctype = "multipart/form-data", id = "AddNewUser" }))
+    {
+        @Html.HiddenFor(c => c.UserId)
+        <div class="card-body">
+            <div class="form-group row">
+                <label for="inputPassword3" class="col-sm-2 col-form-label">UserName <span class="requiredSign">*</span></label>
+                <div class="col-sm-10">
+                    @Html.TextBoxFor(c => c.UserName, new { @type = "text", @class = "form-control", placeholder = "UserName or Mobile", @maxLength = "50" })
+                    @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "error usernameerror" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputPassword3" class="col-sm-2 col-form-label">Password <span class="requiredSign">*</span></label>
+                <div class="col-sm-10">
+                    <div class="input-group" id="show_hide_password">
+                        @if (Model.UserId > 0)
+                        {
+                            @Html.TextBoxFor(c => c.Password, new { @type = "Password", @class = "form-control fas fa-eye", placeholder = "Password", @disabled = "disabled", @maxLength = "50", @minLength = "2" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(c => c.Password, new { @type = "Password", @class = "form-control fas fa-eye", placeholder = "Password", @maxLength = "50", @minLength = "2" })
+                        }
+                        <div class="input-group-addon">
+                            <span id="Showhidepassword" class="fas fa-eye-slash form-control" aria-hidden="true"></span>
+                        </div>
+                    </div>
+                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "error pswderror" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputPassword3" class="col-sm-2 col-form-label">Confirm Password <span class="requiredSign">*</span></label>
+                <div class="col-sm-10">
+                    <div class="input-group" id="show_hide_password">
+                        @if (Model.UserId > 0)
+                        {
+                            @Html.TextBoxFor(c => c.Confirmpassword, new { @type = "Password", @class = "form-control fas fa-eye", placeholder = "Password", @disabled = "disabled", @maxLength = "50", @minLength = "2", @onchange = "CheckPassword(this.value)" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(c => c.Confirmpassword, new { @type = "Password", @class = "form-control fas fa-eye", placeholder = "Password", @maxLength = "50", @minLength = "2", @onchange = "CheckPassword(this.value)" })
+                        }
+                        <div class="input-group-addon">
+                            <span id="ShowhideCpassword" class="fas fa-eye-slash form-control" aria-hidden="true"></span>
+                        </div>
+                    </div>
+                    @Html.ValidationMessageFor(m => m.Confirmpassword, "", new { @class = "error cpswderror" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputPassword3" class="col-sm-2 col-form-label">Name <span class="requiredSign">*</span></label>
+                <div class="col-sm-10">
+                    @Html.TextBoxFor(c => c.Name, new { @type = "text", @class = "form-control", placeholder = "Name", @maxLength = "50" })
+                    @Html.ValidationMessageFor(m => m.Name, "", new { @class = "error nameerror" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputPassword3" class="col-sm-2 col-form-label">Email <span class="requiredSign">*</span></label>
+                <div class="col-sm-10">
+                    @Html.TextBoxFor(c => c.Email, new { @type = "text", @class = "form-control", placeholder = "Email", @maxLength = "50" })
+                    @Html.ValidationMessageFor(m => m.Email, "", new { @class = "error emailerror" })
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputPassword3" class="col-sm-2 col-form-label">User Type <span class="requiredSign">*</span></label>
+                <div class="col-sm-10">
+                    @Html.DropDownListFor(m => m.Role, new List<SelectListItem>
+                    {
+                        new SelectListItem{ Text="Admin", Value = "Admin" },
+                         new SelectListItem{ Text="Manager", Value = "Manager" },
+                        new SelectListItem{ Text="User", Value = "User" },
+                    }, new { @class = "form-control", @style = "width: 100%;" })
+                    <span class="error roleerror"></span>
+                </div>
+            </div>
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary btnregister">Register</button>
+        </div>
+        <div class="login-error" style="color:red;">@TempData["Message"]</div>
+        <!-- /.card-footer -->
+    }
+</div>
+<!-- /.card -->
+<!-- jQuery -->
+<script src="~/plugins/jquery/jquery.min.js"></script>
+<script>
+    $(function () {
+        //debugger;
+        $("#Showhidepassword").click(function () {
+            if ($('#Password').attr("type") == "text") {
+                $('#Password').attr('type', 'password');
+                $('#Showhidepassword').addClass("fa-eye-slash");
+            }
+            else {
+                $('#Password').attr('type', 'text');
+                $('#Showhidepassword').addClass("fa-eye");
+            }
+        });
+
+        //debugger;
+        $("#ShowhideCpassword").click(function () {
+            if ($('#Confirmpassword').attr("type") == "text") {
+                $('#Confirmpassword').attr('type', 'password');
+                $('#Showhidepassword').addClass("fa-eye-slash");
+            }
+            else {
+                $('#Confirmpassword').attr('type', 'text');
+                $('#Showhidepassword').addClass("fa-eye");
+            }
+        });
+    });
+    function CheckPassword(val) {
+        //debugger;
+        var password = $("#Password").val();
+        var Cpassword = $("#Confirmpassword").val();
+        if (password != Cpassword && (password != '' && Cpassword != '')) {
+            alert('confirm password not match');
+            return false;
+        }
+    }
+    $(".btnregister").click(function () {
+        //debugger
+        var flag = true;
+        var usernamemsg = '', pswdmsg = '', cpswdmsg = '', namemsg = '', emailmsg = '', rolemsg = '';
+        var username = $("#UserName").val();
+        var password = $("#Password").val();
+        var c_password = $("#Confirmpassword").val();
+        var name = $("#Name").val();
+        var email = $("#Email").val();
+        var role = $("#Role").val();
+
+        if (IsNullOrUndefined(username)) {
+            usernamemsg = "Username is required";
+            flag = false;
+        }
+
+        if (IsNullOrUndefined(password)) {
+            pswdmsg = "Password is required";
+            flag = false;
+        }
+
+        if (IsNullOrUndefined(c_password)) {
+            cpswdmsg = "Confirmpassword is required";
+            flag = false;
+        }
+
+        if (IsNullOrUndefined(name)) {
+            namemsg = "Name is required";
+            flag = false;
+        }
+
+        if (IsNullOrUndefined(email)) {
+            emailmsg = "Email is required";
+            flag = false;
+        }
+
+        if (IsNullOrUndefined(role)) {
+            rolemsg = "Role is required";
+            flag = false;
+        }
+
+        if (!flag) {
+            $(".usernameerror").html(usernamemsg);
+            $(".pswderror").html(pswdmsg);
+            $(".cpswderror").html(cpswdmsg);
+            $(".nameerror").html(namemsg);
+            $(".emailerror").html(emailmsg);
+            $(".roleerror").html(rolemsg);
+            $("#ajax-loader").hide();
+            return false;
+        }
+        else {
+            if (password != c_password) {
+                alert("Password Doesn't Match")
+                return false;
+            }
+            $("#AddNewUser")[0].submit();
+        }
+    });
+    function IsNullOrUndefined(pvalue) {
+        return pvalue === undefined || pvalue === null || pvalue === '';
+    }
+
+</script>

@@ -1,0 +1,277 @@
+﻿@model BCInsight.Models.TaskViewModel
+
+<style>
+    .dropdown-check-list {
+        display: inline-block;
+        width: 100%;
+    }
+
+    .anchor {
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+
+    .dropdown-check-list .anchor {
+        position: relative;
+        cursor: pointer;
+        display: inline-block;
+        padding: 5px 30px 5px 15px;
+        border: 1px solid #ccc;
+        width: 100%;
+    }
+
+        .dropdown-check-list .anchor:after {
+            position: absolute;
+            content: "";
+            border-left: 2px solid black;
+            border-top: 2px solid black;
+            padding: 5px;
+            right: 10px;
+            top: 20%;
+            -moz-transform: rotate(-135deg);
+            -ms-transform: rotate(-135deg);
+            -o-transform: rotate(-135deg);
+            -webkit-transform: rotate(-135deg);
+            transform: rotate(-135deg);
+        }
+
+        .dropdown-check-list .anchor:active:after {
+            right: 8px;
+            top: 21%;
+        }
+
+    .dropdown-check-list ul.items {
+        padding: 5px 10px 2px 10px;
+        display: none;
+        margin: 0;
+        border: 1px solid #ccc;
+        border-top: none;
+    }
+
+    .dropdown-check-list1 ul.items1 {
+        padding: 5px 10px 2px 10px;
+        display: none;
+        margin: 0;
+        border: 1px solid #ccc;
+        border-top: none;
+    }
+
+    .dropdown-check-list ul.items li {
+        list-style: none;
+    }
+
+    .dropdown-check-list.visible .anchor {
+        color: black;
+    }
+
+    .dropdown-check-list.visible .items {
+        display: block;
+    }
+
+    .opmListItem {
+        margin: 0px;
+        padding-left: 5px;
+        font-weight: normal !important;
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+</style>
+<html>
+<head>
+    <link href="~/Content/themes/base/jquery-ui.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Task</h1>
+                </div><!-- /.col -->
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Home</a></li>
+                        <li class="breadcrumb-item active"><a href="@Url.Action("Index","Task")">Task</a></li>
+                    </ol>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+    <!-- Horizontal Form -->
+    <div class="card card-info">
+        <div class="card-header">
+            @if (Model != null && Model.Id != 0)
+            {
+                <h3 class="card-title">Update - Task</h3>
+            }
+            else
+            {
+                <h3 class="card-title">Add - Task</h3>
+            }
+            <a type="button" class="float-right" href="@Url.Action("Index","Task")">BACK <i class="fas fa-reply"></i></a>
+        </div>
+        <!-- /.card-header -->
+        <!-- form start -->
+        @using (Html.BeginForm("AddTask", "Task", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.HiddenFor(c => c.Id)
+
+            <div class="card-body">
+                <span class="error">@TempData["duplicate"]</span>
+
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Department Name<span class="requiredSign">*</span></label>
+                    <div class="col-sm-10">
+                        <div id="list1" class="dropdown-check-list" tabindex="100">
+                            @Html.HiddenFor(x => x.DeptName)
+                            <span class="anchor form-control" id="spanDOPM">Select Department</span>
+                            <ul class="items" id="ulDOPMItem">
+                                @if (ViewBag.department != null)
+                                {
+                                    var list = (List<SelectListItem>)ViewBag.department;
+                                    if (list == null)
+                                    {
+                                        <li>
+                                            <label class=".opmListItem">No Department found</label>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in list)
+                                        {
+                                            string id = "Id_" + item.Value;
+                                            if (item.Selected)
+                                            {
+                                                <li>
+                                                    <input type="checkbox" name="@item.Text" class="dept" id="@id" value="@item.Value" checked="checked">
+                                                    <label for="@id" class=".opmListItem">@item.Text</label>
+                                                </li>
+                                            }
+                                            else
+                                            {
+                                                <li>
+                                                    <input type="checkbox" name="@item.Text" class="dept" id="@id" value="@item.Value">
+                                                    <label for="@id" class=".opmListItem">@item.Text</label>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                    <span class="error roleError"></span>
+                </div>
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Task Name<span class="requiredSign">*</span></label>
+                    <div class="col-sm-10">
+                        @Html.TextBoxFor(c => c.TaskName, new { @type = "text", @class = "form-control", placeholder = "Task Name", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.TaskName, "", new { @class = "error" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">IsManagerTask</label>
+                    <div class="col-sm-10">
+                        @Html.CheckBoxFor(x => x.IsForManager, new { @id = "ischeck"})                       
+                        @Html.ValidationMessageFor(m => m.TaskName, "", new { @class = "error" })
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Remarks</label>
+                    <div class="col-sm-10">
+                        @Html.TextAreaFor(c => c.TaskRemarks, new { @type = "text", @class = "form-control", placeholder = "Remarks", @maxLength = "40", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.TaskRemarks, "", new { @class = "error" })
+                    </div>
+                </div>
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer">
+                @if (Model.Id == 0)
+                {
+                    <button type="button" id="btnSave" class="btn btn-primary">SAVE</button>
+                }
+                else
+                {
+                    <button type="button" id="btnSave" class="btn btn-primary">UPDATE</button>
+                }
+                <a type="button" href="@Url.Action("Index","Task")" class="btn btn-default float-right">
+                    CANCEL
+                </a>
+            </div>
+            <!-- /.card-footer -->
+        }
+    </div>
+</body>
+</html>
+<script>
+
+    $(document).ready(function () {
+
+        $(".errorMsg").text('');
+        var checkList = document.getElementById('list1');
+        checkList.getElementsByClassName('anchor')[0].onclick = function (evt) {
+            if (checkList.classList.contains('visible'))
+                checkList.classList.remove('visible');
+            else
+                checkList.classList.add('visible');
+        }
+
+    });
+
+    $("#btnSave").click(function () {
+        debugger;
+        $(".errorMsg").text('');
+
+        var id = 0;
+        id = parseInt($("#Id").val());
+        var taskname = $("#TaskName").val();
+        var taskremarks = $("#TaskRemarks").val();
+        var Ischecked = $('#ischeck').prop('checked');
+
+        var deptIds = '';
+        $(".dept").each(function (e, i) {
+            if (i.checked)
+                deptIds = deptIds + "," + i.value;
+        });
+        var iserror = false;      
+
+        if (deptIds == '') {
+            iserror = true;
+            $("#list1").addClass("red-border");
+        }        
+
+        if (!iserror) {
+
+            var model = {
+                TaskId: id,
+                TaskName: taskname,
+                TaskRemarks: taskremarks,
+                DeptIds: deptIds,
+                IsForManager: Ischecked
+            };
+
+            $.ajax({
+                type: 'post',
+                data: model,
+                url: '@Url.Action("AddTask", "Task")',
+                success: function (data) {
+
+                    $(".errorMsg").text('');
+                    if (!data.Item1) {
+                        $(".errorMsg").text(data.Item2);
+                    }
+                    else {
+                        var url = '@Url.Action("Index","Task")';
+                        window.location.href = url;
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+
