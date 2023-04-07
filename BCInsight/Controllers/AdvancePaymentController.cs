@@ -21,7 +21,6 @@ namespace BCInsight.Controllers
         public AdvancePaymentController(IAdvancePayment advancePayment)
         {
             _advancePayment = advancePayment;
-
         }
 
         public ActionResult Index()
