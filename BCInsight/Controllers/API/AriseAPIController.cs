@@ -1646,6 +1646,7 @@ namespace BCInsight.Controllers.API
         public ApiResult SubmitTaskRating(TaskRatingReqModel model)
         {
             ApiResult _apiResult = new ApiResult();
+            admin_csmariseEntities entities = new admin_csmariseEntities();
             try
             {
                 if (!model.GetIsValid())
@@ -1674,10 +1675,54 @@ namespace BCInsight.Controllers.API
                 _dailytaskstatus.Edit(taskStatus);
                 _dailytaskstatus.Save();
 
-                var _ret = new
+                var _task = (from t in entities.Task
+                             join td in entities.TaskDepartment on t.Id equals td.TaskId
+                             where td.Id == model.TaskId
+                             select new
+                             {
+                                 Taskid = t.Id,
+                                 Title = t.TaskName,
+                                 Description = td.Remarks,
+                                 CompletedBy = model.UserId,
+                                 IsDeleted = td.IsDeleted,
+                                 CreatedBy = model.UserId,
+                                 CreatedOn = td.CreatedOn,
+                                 ModifiedBy = td.ModifiedBy,
+                                 ModifiedOn = td.ModifiedOn,
+                                 DeletedBy = td.DeletedBy,
+                                 DeletedOn = td.DeletedOn,
+                             }).FirstOrDefault();
+
+                var _retModel = new
                 {
-                    TaskId = model.TaskId
+                    TaskId = taskStatus.TaskId,
+                    Title = _task.Title,
+                    Description = _task.Description,
+                    IsCompleted = taskStatus.IsCompleted ?? false,
+                    CompletedBy = taskStatus.UserId,
+                    CompletedOn = taskStatus.CreatedOn != null ? taskStatus.CreatedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                    Rating = taskStatus.Rating,
+                    RatedBy = taskStatus.RatingBy,
+                    RatedOn = taskStatus.RatingOn != null ? taskStatus.RatingOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                    Comment = taskStatus.Comment,
+                    CommentBy = taskStatus.CommentedBy,
+                    CommentOn = taskStatus.CommentedOn != null ? taskStatus.CommentedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                    IsDeleted = _task.IsDeleted,
+                    CreatedBy = _task.CreatedBy,
+                    CreatedOn = _task.CreatedOn != null ? _task.CreatedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                    ModifiedBy = _task.ModifiedBy,
+                    ModifiedOn = _task.ModifiedOn != null ? _task.ModifiedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                    DeletedBy = _task.DeletedBy,
+                    DeletedOn = _task.DeletedOn != null ? _task.DeletedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty
+
                 };
+                if (_retModel != null)
+                {
+                    _apiResult.Response = true;
+                    _apiResult.ReturnCode = (int)EnumErrorCodeHelper.SuccessCodes.Success;
+                    _apiResult.Message = ErrorHelpers.GetSuccessMessages(EnumErrorCodeHelper.SuccessCodes.Success);
+                    _apiResult.Result = _retModel;
+                }
             }
             catch (Exception ex)
             {
