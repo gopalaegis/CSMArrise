@@ -1,11 +1,13 @@
 ﻿using Antlr.Runtime.Misc;
 using BCInsight.DAL;
+using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.VariantTypes;
 using NPOI.SS.Formula.Functions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
+using System.Text;
 using System.Web;
 
 namespace BCInsight.Models
@@ -335,6 +337,34 @@ namespace BCInsight.Models
 
         public string Date { get; set; }
         public bool IsCompleted { get; set; }
+        public string ErrorMessage { get; set; }
+    }
+
+    public class TaskRatingReqModel
+    {
+        public bool GetIsValid()
+        {
+            List<string> errorList = new List<string>();
+            if (UserId <= 0)
+                errorList.Add("Invalid UserId");
+            if (DepartmentId <= 0)
+                errorList.Add("Invalid DepartmentId");
+            if (TaskId <= 0)
+                errorList.Add("Invalid TaskId");
+            if (Rating <= 0)
+                errorList.Add("Invalid Rating");
+            if (errorList.Any())
+            {
+                ErrorMessage = string.Join(",", errorList);
+                return false;
+            }
+            return true;
+        }
+        public int UserId { get; set; }
+        public int TaskId { get; set; }
+        public int DepartmentId { get; set; }
+        public double Rating { get; set; }
+        public string Comment { get; set; }
         public string ErrorMessage { get; set; }
     }
 }

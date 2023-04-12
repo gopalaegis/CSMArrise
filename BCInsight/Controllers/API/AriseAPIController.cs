@@ -19,6 +19,7 @@ using System.Drawing.Design;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.WebPages;
 using static BCInsight.Web.HelperClass.EnumErrorCodeHelper;
@@ -1436,7 +1437,7 @@ namespace BCInsight.Controllers.API
                         {
                             var tasklist = (from td in entity.TaskDepartment
                                             join t in entity.Task on td.TaskId equals t.Id
-                                            where td.DepartmentId == item.Id && td.CreatedOn >= fromDate && td.CreatedOn <= toDate
+                                            where td.DepartmentId == item.Id && td.CreatedOn >= fromDate && td.CreatedOn <= toDate && td.IsDeleted == false
                                             select new
                                             {
                                                 TaskId = td.Id,
@@ -1549,7 +1550,7 @@ namespace BCInsight.Controllers.API
                 var taskdepartment = _taskDepartment.FindBy(x => x.Id == model.TaskId && x.IsDeleted == false).FirstOrDefault();
                 if (taskdepartment == null)
                 {
-                    return Utility.InvalidModelMessage("Invalid TaskId");
+                    return Utility.InvalidModelMessage("Invalid TaskId or Task is deleted.");
                 }
 
                 DateTime date;
@@ -1635,6 +1636,52 @@ namespace BCInsight.Controllers.API
             catch (Exception ex)
             {
                 Log.Error(ex.Message);
+                return Utility.InvalidModelMessage(ex.Message);
+            }
+            return _apiResult;
+        }
+
+        [HttpPost]
+        [ActionName("SubmitTaskRating")]
+        public ApiResult SubmitTaskRating(TaskRatingReqModel model)
+        {
+            ApiResult _apiResult = new ApiResult();
+            try
+            {
+                if (!model.GetIsValid())
+                {
+                    Log.Error(model.ErrorMessage);
+                    return Utility.InvalidModelMessage(model.ErrorMessage);
+                }
+
+                var user = _user.FindBy(x => x.Id == model.UserId && x.IsDeleted == false).FirstOrDefault();
+                if (user == null)
+                {
+                    return Utility.InvalidModelMessage("User not found");
+                }
+
+                var taskStatus = _dailytaskstatus.FindBy(x => x.TaskId == model.TaskId && x.IsCompleted == true && x.IsDeleted == false).FirstOrDefault();
+                if (taskStatus == null)
+                {
+                    return Utility.InvalidModelMessage("Task is not completed");
+                }
+
+                taskStatus.Rating = model.Rating;
+                taskStatus.RatingBy = model.UserId;
+                taskStatus.RatingOn = DateTime.Now;
+                taskStatus.Comment = model.Comment;
+
+                _dailytaskstatus.Edit(taskStatus);
+                _dailytaskstatus.Save();
+
+                var _ret = new
+                {
+                    TaskId = model.TaskId
+                };
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex);
                 return Utility.InvalidModelMessage(ex.Message);
             }
             return _apiResult;
