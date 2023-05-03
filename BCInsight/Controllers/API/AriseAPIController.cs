@@ -1242,7 +1242,7 @@ namespace BCInsight.Controllers.API
                         }
                     }
 
-                    double lateHours = 0, minHours = 8;
+                    double lateHours = 0, minHours = 8, forgetcheckout = 0;
                     if (startTime != null && endTime != null)
                     {
                         minHours = (endTime.Value - startTime.Value).TotalHours;
@@ -1317,6 +1317,30 @@ namespace BCInsight.Controllers.API
                                     else
                                         absentDays++;
                                 }
+                                else if (data.ClockIn != null && data.ClockOut == null)
+                                {
+                                    forgetcheckout++;
+                                    if (startTime != null && data.ClockIn.Value.TimeOfDay > startTime)
+                                    {
+                                        var timeDiff = (data.ClockIn.Value.TimeOfDay.Subtract(startTime.Value));
+                                        if (timeDiff < TimeSpan.FromHours(1))
+                                            lateHours = lateHours + 1;
+                                        if (timeDiff > TimeSpan.FromHours(1) && timeDiff < TimeSpan.FromHours(2))
+                                            lateHours = lateHours + 2;
+                                        if (timeDiff > TimeSpan.FromHours(2) && timeDiff < TimeSpan.FromHours(3))
+                                            lateHours = lateHours + 3;
+                                        if (timeDiff > TimeSpan.FromHours(3) && timeDiff < TimeSpan.FromHours(4))
+                                            lateHours = lateHours + 4;
+                                        if (timeDiff > TimeSpan.FromHours(4) && timeDiff < TimeSpan.FromHours(5))
+                                            lateHours = lateHours + 5;
+                                        if (timeDiff > TimeSpan.FromHours(5) && timeDiff < TimeSpan.FromHours(6))
+                                            lateHours = lateHours + 6;
+                                        if (timeDiff > TimeSpan.FromHours(6) && timeDiff < TimeSpan.FromHours(7))
+                                            lateHours = lateHours + 7;
+                                        if (timeDiff > TimeSpan.FromHours(7) && timeDiff < TimeSpan.FromHours(8))
+                                            lateHours = lateHours + 8;
+                                    }
+                                }
                                 else
                                     absentDays++;
                             }
@@ -1331,7 +1355,7 @@ namespace BCInsight.Controllers.API
 
                         double perHourSalary = perDaySalary / minHours;
                         double aprvLeaveHours = totalApprovedLeave * minHours;
-                        double salaryHours = totalWorkingHours + aprvLeaveHours - lateHours;
+                        double salaryHours = totalWorkingHours + aprvLeaveHours - lateHours - forgetcheckout;
 
                         obj = new
                         {
@@ -1341,6 +1365,7 @@ namespace BCInsight.Controllers.API
                             TotalLateHours = lateHours,
                             LateHoursDeduction = Math.Round(lateHours * perHourSalary, 2),
                             AbsentDaysDeduction = AbsentDaysDeduction,
+                            ForgotCheckOutDeduction = Math.Round((forgetcheckout * perHourSalary), 2),
                             onHandSalary = Math.Round((salaryHours * perHourSalary) - totalAdvncPayment, 2)
                         };
 
