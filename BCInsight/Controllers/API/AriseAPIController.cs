@@ -1381,6 +1381,7 @@ namespace BCInsight.Controllers.API
         public ApiResult GetTaskByUserAndDate(UserTaskByDateReqModel model)
         {
             ApiResult _apiResult = new ApiResult();
+
             try
             {
                 if (!model.GetIsValid())
@@ -1432,45 +1433,58 @@ namespace BCInsight.Controllers.API
 
                     if (dept != null)
                     {
-                        var taskListObj = new List<object>();
                         foreach (var item in dept)
                         {
-                            var tasklist = (from td in entity.TaskDepartment
-                                            join t in entity.Task on td.TaskId equals t.Id
-                                            where td.DepartmentId == item.Id && td.CreatedOn >= fromDate && td.CreatedOn <= toDate && td.IsDeleted == false
-                                            select new
-                                            {
-                                                TaskId = td.Id,
-                                                Title = t.TaskName,
-                                                Description = td.Remarks,
-                                                IsCompleted = false,
-                                                CompletedBy = 0,
-                                                CompletedOn = DateTime.MinValue,
-                                                Rating = 0,
-                                                RatedBy = 0,
-                                                RatedOn = DateTime.MinValue,
-                                                Comment = string.Empty,
-                                                CommentBy = 0,
-                                                CommentOn = DateTime.MinValue,
-                                                IsDeleted = td.IsDeleted,
-                                                CreatedBy = t.CreatedBy,
-                                                CreatedOn = t.CreatedOn,
-                                                ModifiedBy = td.ModifiedBy,
-                                                ModifiedOn = td.ModifiedOn,
-                                                DeletedBy = td.DeletedBy,
-                                                DeletedOn = td.DeletedOn
-                                            }).ToList();
+                            var taskListObj = new List<object>();
+                            List<taskListVIewModel> tasklist = new List<taskListVIewModel>();
+                            tasklist = (from td in entity.TaskDepartment
+                                        join t in entity.Task on td.TaskId equals t.Id
+                                        where td.DepartmentId == item.Id && td.CreatedOn <= toDate && td.IsDeleted == false
+                                        select new taskListVIewModel()
+                                        {
+                                            TaskId = t.Id,
+                                            TaskDeptId = td.Id,
+                                            Title = t.TaskName,
+                                            Description = td.Remarks,
+                                            IsCompleted = false,
+                                            CompletedBy = 0,
+                                            CompletedOn = DateTime.MinValue,
+                                            Rating = 0,
+                                            RatedBy = 0,
+                                            RatedOn = DateTime.MinValue,
+                                            Comment = string.Empty,
+                                            CommentBy = 0,
+                                            CommentOn = DateTime.MinValue,
+                                            IsDeleted = td.IsDeleted,
+                                            CreatedBy = t.CreatedBy,
+                                            CreatedOn = t.CreatedOn,
+                                            ModifiedBy = td.ModifiedBy,
+                                            ModifiedOn = td.ModifiedOn,
+                                            DeletedBy = td.DeletedBy,
+                                            DeletedOn = td.DeletedOn,
+                                            IsForManager = td.IsForManager
+                                        }).OrderByDescending(x => x.CreatedOn).ToList();
+
+                            if (user.Role.ToLower() == "manager")
+                            {
+                                tasklist = tasklist.FindAll(x => x.IsForManager == true);
+                            }
+                            if (user.Role.ToLower() == "employee")
+                            {
+                                tasklist = tasklist.FindAll(x => x.IsForManager == false);
+                            }
 
                             if (tasklist != null && tasklist.Count > 0)
                             {
                                 foreach (var task in tasklist)
                                 {
-                                    var taskStatus = entity.DailyTaskStatus.Where(x => x.TaskId == task.TaskId && x.UserId == model.UserId).FirstOrDefault();
+                                    var taskStatus = entity.DailyTaskStatus.Where(x => x.TaskId == task.TaskDeptId && x.UserId == model.UserId && x.CompletedOn != null
+                                                        && x.CompletedOn.Value >= fromDate && x.CompletedOn.Value <= toDate).FirstOrDefault();
                                     if (taskStatus != null)
                                     {
                                         taskListObj.Add(new
                                         {
-                                            TaskId = task.TaskId,
+                                            TaskId = task.TaskDeptId,
                                             Title = task.Title,
                                             Description = task.Description,
                                             IsCompleted = taskStatus.IsCompleted ?? false,
@@ -1492,7 +1506,30 @@ namespace BCInsight.Controllers.API
                                         });
                                     }
                                     else
-                                        taskListObj.Add(task);
+                                    {
+                                        taskListObj.Add(new
+                                        {
+                                            TaskId = task.TaskDeptId,
+                                            Title = task.Title,
+                                            Description = task.Description,
+                                            IsCompleted = false,
+                                            CompletedBy = 0,
+                                            CompletedOn = string.Empty,
+                                            Rating = 0,
+                                            RatedBy = 0,
+                                            RatedOn = string.Empty,
+                                            Comment = string.Empty,
+                                            CommentBy = 0,
+                                            CommentOn = string.Empty,
+                                            IsDeleted = task.IsDeleted,
+                                            CreatedBy = task.CreatedBy,
+                                            CreatedOn = task.CreatedOn != null ? task.CreatedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                                            ModifiedBy = task.ModifiedBy,
+                                            ModifiedOn = task.ModifiedOn != null ? task.ModifiedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                                            DeletedBy = task.DeletedBy,
+                                            DeletedOn = task.DeletedOn != null ? task.DeletedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty
+                                        });
+                                    }
                                 }
                             }
 
@@ -1646,6 +1683,7 @@ namespace BCInsight.Controllers.API
         public ApiResult SubmitTaskRating(TaskRatingReqModel model)
         {
             ApiResult _apiResult = new ApiResult();
+            admin_csmariseEntities entities = new admin_csmariseEntities();
             try
             {
                 if (!model.GetIsValid())
@@ -1674,11 +1712,255 @@ namespace BCInsight.Controllers.API
                 _dailytaskstatus.Edit(taskStatus);
                 _dailytaskstatus.Save();
 
-                var _ret = new
+                var taskdept = (from t in entities.Task
+                                join td in entities.TaskDepartment on t.Id equals td.TaskId
+                                where td.Id == model.TaskId
+                                select new
+                                {
+                                    Taskid = t.Id,
+                                    Title = t.TaskName,
+                                    Description = td.Remarks,
+                                    CompletedBy = model.UserId,
+                                    IsDeleted = td.IsDeleted,
+                                    CreatedBy = model.UserId,
+                                    CreatedOn = td.CreatedOn,
+                                    ModifiedBy = td.ModifiedBy,
+                                    ModifiedOn = td.ModifiedOn,
+                                    DeletedBy = td.DeletedBy,
+                                    DeletedOn = td.DeletedOn,
+                                }).FirstOrDefault();
+
+                var _retModel = new
                 {
-                    TaskId = model.TaskId
+                    TaskId = model.TaskId,
+                    Title = taskdept.Title,
+                    Description = taskdept.Description,
+                    IsCompleted = taskStatus.IsCompleted ?? false,
+                    CompletedBy = taskStatus.UserId,
+                    CompletedOn = taskStatus.CreatedOn != null ? taskStatus.CreatedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                    Rating = taskStatus.Rating,
+                    RatedBy = taskStatus.RatingBy,
+                    RatedOn = taskStatus.RatingOn != null ? taskStatus.RatingOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                    Comment = taskStatus.Comment,
+                    CommentBy = taskStatus.CommentedBy,
+                    CommentOn = taskStatus.CommentedOn != null ? taskStatus.CommentedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                    IsDeleted = taskdept.IsDeleted,
+                    CreatedBy = taskdept.CreatedBy,
+                    CreatedOn = taskdept.CreatedOn != null ? taskdept.CreatedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                    ModifiedBy = taskdept.ModifiedBy,
+                    ModifiedOn = taskdept.ModifiedOn != null ? taskdept.ModifiedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                    DeletedBy = taskdept.DeletedBy,
+                    DeletedOn = taskdept.DeletedOn != null ? taskdept.DeletedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty
+
                 };
+                if (_retModel != null)
+                {
+                    _apiResult.Response = true;
+                    _apiResult.ReturnCode = (int)EnumErrorCodeHelper.SuccessCodes.Success;
+                    _apiResult.Message = ErrorHelpers.GetSuccessMessages(EnumErrorCodeHelper.SuccessCodes.Success);
+                    _apiResult.Result = _retModel;
+                }
             }
+            catch (Exception ex)
+            {
+                Log.Error(ex);
+                return Utility.InvalidModelMessage(ex.Message);
+            }
+            return _apiResult;
+        }
+
+        [HttpPost]
+        [ActionName("GetSubCoordinatorTask")]
+        public ApiResult GetSubCoordinatorTask(GetSubCoordinatorTask model)
+        {
+            ApiResult _apiResult = new ApiResult();
+            try
+            {
+                if (!model.GetIsValid())
+                {
+                    Log.Error(model.ErrorMessage);
+                    return Utility.InvalidModelMessage(model.ErrorMessage);
+                }
+
+                var user = _user.FindBy(x => x.Id == model.UserId && x.IsDeleted == false).FirstOrDefault();
+                if (user == null)
+                {
+                    return Utility.InvalidModelMessage("User not found");
+                }
+                if (user.Role == "employee")
+                {
+                    return Utility.InvalidModelMessage("SubCoordinator Task not found");
+                }
+
+                var userList = new List<User>();
+                if (user.Role.ToLower() == "admin")
+                {
+                    userList = _user.FindBy(x => x.Role.ToLower() == "manager").ToList();
+                }
+                else if (user.Role.ToLower() == "manager")
+                {
+                    userList = _user.FindBy(x => x.Manager == user.Id).ToList();
+                }
+
+                DateTime date, today = DateTime.Now;
+                if (!string.IsNullOrEmpty(model.Date))
+                {
+                    if (DateTime.TryParse(model.Date.Trim(), out DateTime Temp) == true)
+                    {
+                        date = DateTime.ParseExact(model.Date.Trim(), "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture);
+                        if (date == null || date > DateTime.Now)
+                        {
+                            return Utility.InvalidModelMessage("Invalid Date");
+                        }
+                        date = new DateTime(date.Year, date.Month, date.Day, 00, 01, 00);
+                    }
+                    else
+                        date = new DateTime(today.Year, today.Month, today.Day, 00, 01, 00);
+                }
+                else
+                {
+                    date = new DateTime(today.Year, today.Month, today.Day, 00, 01, 00);
+                }
+
+                var fromDate = date;
+                var toDate = new DateTime(fromDate.Year, fromDate.Month, fromDate.Day, 23, 59, 59);
+
+                var deptList = new List<object>();
+                var userdata = new List<object>();
+                if (userList.Count() > 0)
+                {
+                    using (var entity = new admin_csmariseEntities())
+                    {
+                        foreach (var item in userList)
+                        {
+                            var dept = (from d in entity.Department
+                                        join ud in entity.UserDepartment on d.Id equals ud.DepartmentId
+                                        where ud.UserId == model.UserId
+                                        select new
+                                        {
+                                            d.Id,
+                                            d.Name
+                                        }).ToList();
+
+                            if (dept != null)
+                            {
+                                foreach (var item1 in dept)
+                                {
+                                    var taskListObj = new List<object>();
+                                    List<taskListVIewModel> tasklist = new List<taskListVIewModel>();
+                                    tasklist = (from td in entity.TaskDepartment
+                                                join t in entity.Task on td.TaskId equals t.Id
+                                                where td.DepartmentId == item1.Id && td.CreatedOn <= toDate && td.IsDeleted == false
+                                                select new taskListVIewModel()
+                                                {
+                                                    TaskDeptId = td.Id,
+                                                    Title = t.TaskName,
+                                                    Description = td.Remarks,
+                                                    IsCompleted = false,
+                                                    //IsCompleted = (bool)dt.IsCompleted,
+                                                    CompletedBy = 0,
+                                                    CompletedOn = DateTime.MinValue,
+                                                    Rating = 0,
+                                                    RatedBy = 0,
+                                                    RatedOn = DateTime.MinValue,
+                                                    Comment = string.Empty,
+                                                    CommentBy = 0,
+                                                    CommentOn = DateTime.MinValue,
+                                                    IsDeleted = td.IsDeleted,
+                                                    CreatedBy = t.CreatedBy,
+                                                    CreatedOn = t.CreatedOn,
+                                                    ModifiedBy = td.ModifiedBy,
+                                                    ModifiedOn = td.ModifiedOn,
+                                                    DeletedBy = td.DeletedBy,
+                                                    DeletedOn = td.DeletedOn,
+                                                    IsForManager = td.IsForManager
+                                                }).ToList();
+
+                                    if (user.Role.ToLower() == "admin")
+                                    {
+                                        tasklist = tasklist.FindAll(x => x.IsForManager == true);
+                                    }
+                                    if (user.Role.ToLower() == "manager")
+                                    {
+                                        tasklist = tasklist.FindAll(x => x.IsForManager == false);
+                                    }
+
+                                    if (tasklist != null && tasklist.Count > 0)
+                                    {
+                                        foreach (var task in tasklist)
+                                        {
+                                            var taskStatus = entity.DailyTaskStatus.Where(x => x.TaskId == task.TaskDeptId && x.UserId == item.Id && x.IsCompleted == true).FirstOrDefault();
+                                            if (taskStatus != null)
+                                            {
+                                                taskListObj.Add(new
+                                                {
+                                                    TaskId = task.TaskDeptId,
+                                                    Title = task.Title,
+                                                    Description = task.Description,
+                                                    IsCompleted = taskStatus.IsCompleted ?? false,
+                                                    CompletedBy = taskStatus.UserId,
+                                                    CompletedOn = taskStatus.CreatedOn != null ? taskStatus.CreatedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                                                    Rating = taskStatus.Rating,
+                                                    RatedBy = taskStatus.RatingBy,
+                                                    RatedOn = taskStatus.RatingOn != null ? taskStatus.RatingOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                                                    Comment = taskStatus.Comment,
+                                                    CommentBy = taskStatus.CommentedBy,
+                                                    CommentOn = taskStatus.CommentedOn != null ? taskStatus.CommentedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                                                    IsDeleted = task.IsDeleted,
+                                                    CreatedBy = task.CreatedBy,
+                                                    CreatedOn = task.CreatedOn != null ? task.CreatedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                                                    ModifiedBy = task.ModifiedBy,
+                                                    ModifiedOn = task.ModifiedOn != null ? task.ModifiedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                                                    DeletedBy = task.DeletedBy,
+                                                    DeletedOn = task.DeletedOn != null ? task.DeletedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty
+                                                });
+                                            }
+                                            else
+                                                taskListObj.Add(task);
+                                        }
+                                    }
+
+
+                                    deptList.Add(new
+                                    {
+
+                                        Id = item1.Id,
+                                        Name = item1.Name,
+                                        Tasks = taskListObj
+                                    });
+
+                                }
+                                userdata.Add(new
+                                {
+                                    UserId = item.Id,
+                                    UserName = item.Name,
+                                    DeptData = deptList
+
+                                });
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    return Utility.InvalidModelMessage("SubCoordinator User not found");
+                }
+
+                var _retModel = new
+                {
+                    //UserList = userdata,
+
+                };
+
+                if (_retModel != null)
+                {
+                    _apiResult.Response = true;
+                    _apiResult.ReturnCode = (int)EnumErrorCodeHelper.SuccessCodes.Success;
+                    _apiResult.Message = ErrorHelpers.GetSuccessMessages(EnumErrorCodeHelper.SuccessCodes.Success);
+                    _apiResult.Result = userdata;
+                }
+            }
+
             catch (Exception ex)
             {
                 Log.Error(ex);
