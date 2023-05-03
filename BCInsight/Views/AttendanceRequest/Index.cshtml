@@ -17,12 +17,12 @@
             <div class="col-sm-6">
                 <h1 class="m-0">Attendance Request</h1>
             </div><!-- /.col -->
-            <div class="col-sm-6">
+            @*<div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Home</a></li>
                     <li class="breadcrumb-item active">Attendance Request</li>
                 </ol>
-            </div><!-- /.col -->
+            </div*@<!-->--><!-- /.col -->
         </div><!-- /.row -->
     </div><!-- /.container-fluid -->
 </div>
@@ -173,15 +173,17 @@
 
     $(function () {
         $("#example1").DataTable({
-            "responsive": true,
-            "lengthChange": true,
-            "autoWidth": true,
-            "language": {
-                "emptyTable": "Record not found"
-            },
+            //"responsive": true,
+            //"lengthChange": true,
+            //"autoWidth": true,
             //"columnDefs": [
             //    { "width": 80, "targets": 9 }
             //]
+            "language": {
+                "emptyTable": "Record not found"
+            },
+            scrollX: true
+            
         });
     });
 

@@ -223,8 +223,8 @@ namespace BCInsight.Models
                 errorMessage.Add("Date is required");
             if (string.IsNullOrEmpty(Reason))
                 errorMessage.Add("Reason is required");
-            if (string.IsNullOrEmpty(Description))
-                errorMessage.Add("Description is required");
+            //if (string.IsNullOrEmpty(Description))
+            //    errorMessage.Add("Description is required");
 
             if (errorMessage.Count > 0)
             {
@@ -365,6 +365,25 @@ namespace BCInsight.Models
         public int DepartmentId { get; set; }
         public double Rating { get; set; }
         public string Comment { get; set; }
+        public string ErrorMessage { get; set; }
+    }
+    public class GetSubCoordinatorTask
+    {
+        public bool GetIsValid()
+        {
+            List<string> errorList = new List<string>();
+            if (UserId <= 0)
+                errorList.Add("Invalid UserId");           
+           
+            if (errorList.Any())
+            {
+                ErrorMessage = string.Join(",", errorList);
+                return false;
+            }
+            return true;
+        }
+        public int UserId { get; set; }
+        public string Date { get; set; }
         public string ErrorMessage { get; set; }
     }
 }

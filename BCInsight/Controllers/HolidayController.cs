@@ -34,7 +34,7 @@ namespace BCInsight.Controllers
                           {
                               Id = h.Id,
                               Year = h.Year,
-                              Date = h.Date.ToString(),
+                              fdate = h.Date,
                               Remarks = h.Remarks,
                               CreatedBy = h.CreatedBy,
                               CreatedOn = h.CreatedOn,
@@ -151,7 +151,7 @@ namespace BCInsight.Controllers
                     tuple = new Tuple<bool, string>(false, "Please select departemnt.");
                     return Json(tuple, JsonRequestBehavior.AllowGet);
                 }
-                
+
                 var date = Convert.ToDateTime(String.Format("{0:dd/MM/yyyy}", model.Date));
                 var Year = date.Year;
 
@@ -180,7 +180,7 @@ namespace BCInsight.Controllers
                         {
                             tuple = new Tuple<bool, string>(false, "Holiday data not found");
                             return Json(tuple, JsonRequestBehavior.AllowGet);
-                        }                  
+                        }
 
 
                         if (!string.IsNullOrEmpty(model.DepartmentIds))

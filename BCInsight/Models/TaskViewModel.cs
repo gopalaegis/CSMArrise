@@ -21,7 +21,6 @@ namespace BCInsight.Models
         public DateTime? DeletedOn { get; set; }
         public string DeptName { get; set; }
         public int TaskDeptId { get; set; }
-
         public bool IsForManager { get; set; }
     }
 }

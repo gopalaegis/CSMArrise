@@ -1,4 +1,4 @@
-﻿@model BCInsight.Models.HolidayViewModel
+﻿@model BCInsight.Models.PendingAttendanceViewModel
 
 <html>
 <head>
@@ -80,6 +80,11 @@
             -webkit-user-select: none;
             -ms-user-select: none;
         }
+
+        ul#ulDOPMItem {
+            max-height: 300px;
+            overflow: auto;
+        }
     </style>
 </head>
 <body>
@@ -87,51 +92,39 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1 class="m-0">Holiday</h1>
+                    <h1 class="m-0">Adjust Attendance</h1>
                 </div><!-- /.col -->
                 @*<div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Home</a></li>
-                        <li class="breadcrumb-item active"><a href="@Url.Action("Index","Holiday")">Holiday</a></li>
-                    </ol>
-                </div>*@<!-- /.col -->
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Home</a></li>
+                            <li class="breadcrumb-item active"><a href="@Url.Action("Index","PendingAttendance")">PendingAttendance</a></li>
+                        </ol>
+                    </div>*@<!-- /.col -->
             </div><!-- /.row -->
         </div><!-- /.container-fluid -->
     </div>
-    <!-- /.content-header -->
-    <!-- Horizontal Form -->
-    <div class="card card-info">
-        <div class="card-header">
-            @if (Model != null && Model.Id != 0)
-            {
-                <h3 class="card-title">Update - Holiday</h3>
-            }
-            else
-            {
-                <h3 class="card-title">Add - Holiday</h3>
-            }
-            <a type="button" class="float-right" href="@Url.Action("Index","Holiday")">BACK <i class="fas fa-reply"></i></a>
-        </div>
 
-        <!-- /.card-header -->
+    <div class="card card-info">
+
+
+        @*/.card-header*@
         <!-- form start -->
-        @using (Html.BeginForm("AddHoliday", "Holiday", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        @using (Html.BeginForm("Index", "PendingAttendance", FormMethod.Post, new { enctype = "multipart/form-data" }))
         {
             @Html.HiddenFor(c => c.Id)
-
             <div class="card-body">
-                <span class="error">@TempData["duplicate"]</span>                
-               
+                <h3 style="color:green">@TempData["success"]</h3>
+                <h3 style="color:red">@TempData["duplicate"]</h3>
                 <div class="form-group row">
-                    <label for="inputEmail3" class="col-sm-2 col-form-label">Department Name<span class="requiredSign">*</span></label>
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">Users<span class="requiredSign">*</span></label>
                     <div class="col-sm-10">
                         <div id="list2" class="dropdown-check-list1" tabindex="100">
                             @*@Html.HiddenFor(x => x.DeaprtmentName)*@
-                            <span class="anchor1 form-control" id="spanDOPM">Select Department</span>
+                            <span class="anchor1 form-control" id="spanDOPM">Select User</span>
                             <ul class="items1" id="ulDOPMItem">
-                                @if (ViewBag.Department != null)
+                                @if (ViewBag.Userlist != null)
                                 {
-                                    var deptlist = (List<SelectListItem>)ViewBag.Department;
+                                    var deptlist = (List<SelectListItem>)ViewBag.Userlist;
                                     if (deptlist == null)
                                     {
                                         <li>
@@ -166,36 +159,29 @@
                 </div>
                 <span class="error roleError"></span>
                 <div class="form-group row">
-                    <label for="inputEmail3" class="col-sm-2 col-form-label">Date<span class="requiredSign">*</span></label>
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">FromDate<span class="requiredSign">*</span></label>
                     <div class="col-sm-10">
-                        @Html.TextBoxFor(c => c.Date, new { @type = "text", @class = "form-control", placeholder = "Date", autocomplete = "off", @id = "datepicker" })
-                        @Html.ValidationMessageFor(m => m.Date, "", new { @class = "error" })
+                        @Html.TextBoxFor(c => c.FromDate, new { @type = "text", @class = "form-control", placeholder = "FromDate", autocomplete = "off", @id = "fromdate" })
+                        @Html.ValidationMessageFor(m => m.FromDate, "", new { @class = "error" })
                     </div>
                 </div>
                 <div class="form-group row">
-                    <label for="inputEmail3" class="col-sm-2 col-form-label">Remarks</label>
+                    <label for="inputEmail3" class="col-sm-2 col-form-label">ToDate<span class="requiredSign">*</span></label>
                     <div class="col-sm-10">
-                        @Html.TextAreaFor(c => c.Remarks, new { @type = "text", @class = "form-control", placeholder = "Remarks", @maxLength = "40", autocomplete = "off" })
-                        @Html.ValidationMessageFor(m => m.Remarks, "", new { @class = "error" })
+                        @Html.TextBoxFor(c => c.ToDate, new { @type = "text", @class = "form-control", placeholder = "ToDate", autocomplete = "off", @id = "todate" })
+                        @Html.ValidationMessageFor(m => m.ToDate, "", new { @class = "error" })
                     </div>
                 </div>
 
                 <!-- /.card-body -->
                 <div class="card-footer">
-                    @if (Model.Id == 0)
-                    {
-                        <button type="button" id="btnSave" class="btn btn-primary">SAVE</button>
-                    }
-                    else
-                    {
-                        <button type="button" id="btnSave" class="btn btn-primary">UPDATE</button>
-                    }
-                    <a type="button" href="@Url.Action("Index", "Holiday")" class="btn btn-default float-right">
+                    <button type="button" id="btnSave" class="btn btn-primary">SAVE</button>
+                    <a type="button" href="@Url.Action("Index", "PendingAttendance")" class="btn btn-default float-right">
                         CANCEL
                     </a>
                 </div>
                 <!-- /.card-footer -->
-               
+
             </div>
         }
     </div>
@@ -207,11 +193,14 @@
     <script src="~/Scripts/jquery-ui-1.13.2.min.js"></script>*@
 <script>
     $(document).ready(function () {
-        $("#datepicker").datepicker({
-            ///*changeMonth: tru*/e,
-            //changeYear: true,
+
+        $("#todate").datepicker({
             dateFormat: 'dd-mm-yy'
         });
+        $("#fromdate").datepicker({
+            dateFormat: 'dd-mm-yy'
+        });
+
 
             var DEPTcheckList = document.getElementById('list2');
             DEPTcheckList.getElementsByClassName('anchor1')[0].onclick = function (evt) {
@@ -222,57 +211,60 @@
             }
     });
 
-     $("#btnSave").click(function () {
-        debugger;
+    var todate = '';
+    var fromdate = '';
+
+    $("#btnSave").click(function () {
+
         $(".errorMsg").text('');
 
-        var id = 0;
-         id = parseInt($("#Id").val());
-         var date = $("#datepicker").val();
-         var remarks = $("#Remarks").val();
+          var id = 0;
+          id = parseInt($("#Id").val());
+          todate = $("#todate").val();
+          fromdate = $("#fromdate").val();
 
-        var deptIds = '';
+        var userIds = '';
         $(".dept").each(function (e, i) {
             if (i.checked)
-                deptIds = deptIds + "," + i.value;
+                userIds = userIds + "," + i.value;
         });
 
         var iserror = false;
 
-        if (deptIds == '') {
+        if (userIds == '') {
             iserror = true;
             $("#list2").addClass("red-border");
-         }
-         if (date == '') {
-             iserror = true;
-             $("#datepicker").addClass("red-border");
-         }
+        }
+        if (todate == '') {
+            iserror = true;
+            $("#todate").addClass("red-border");
+        }
+        if (fromdate == '') {
+            iserror = true;
+            $("#fromdate").addClass("red-border");
+        }
 
         if (!iserror) {
 
             var model = {
                 Id: id,
-                Date: date,
-                Remarks: remarks,
-                DepartmentIds: deptIds
+                ToDate: todate,
+                FromDate: fromdate,
+                Users: userIds
             };
 
             $.ajax({
                 type: 'post',
                 data: model,
-                url: '@Url.Action("AddHoliday", "Holiday")',
+                url: '@Url.Action("Index", "PendingAttendance")',
                 success: function (data) {
-
-                    $(".errorMsg").text('');
-                    if (!data.Item1) {
-                        $(".errorMsg").text(data.Item2);
-                    }
-                    else {
-                        var url = '@Url.Action("Index", "Holiday")';
+                    debugger;
+                    var url = '@Url.Action("Index", "PendingAttendance")';
                         window.location.href = url;
-                    }
                 }
             });
         }
     });
 </script>
+
+
