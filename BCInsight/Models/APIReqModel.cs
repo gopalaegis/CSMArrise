@@ -374,8 +374,10 @@ namespace BCInsight.Models
         {
             List<string> errorList = new List<string>();
             if (UserId <= 0)
-                errorList.Add("Invalid UserId");           
-           
+                errorList.Add("Invalid UserId");
+            if (string.IsNullOrEmpty(Date))
+                errorList.Add("Invalid Date");
+
             if (errorList.Any())
             {
                 ErrorMessage = string.Join(",", errorList);
