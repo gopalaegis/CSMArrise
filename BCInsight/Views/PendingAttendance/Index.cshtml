@@ -113,8 +113,8 @@
         {
             @Html.HiddenFor(c => c.Id)
             <div class="card-body">
-                <h3 style="color:green">@TempData["success"]</h3>
-                <h3 style="color:red">@TempData["duplicate"]</h3>
+                <span style="color:green">@TempData["success"]</span>
+                <span style="color:red">@TempData["duplicate"]</span>
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">Users<span class="requiredSign">*</span></label>
                     <div class="col-sm-10">
@@ -139,14 +139,14 @@
                                             if (item.Selected)
                                             {
                                                 <li>
-                                                    <input type="checkbox" name="@item.Text" class="dept" id="@deptid" value="@item.Value" checked="checked">
+                                                    <input type="checkbox" name="@item.Text" class="cbuser" id="@deptid" value="@item.Value" checked="checked">
                                                     <label for="@deptid" class="DEPTListItem">@item.Text</label>
                                                 </li>
                                             }
                                             else
                                             {
                                                 <li>
-                                                    <input type="checkbox" name="@item.Text" class="dept" id="@deptid" value="@item.Value">
+                                                    <input type="checkbox" name="@item.Text" class="cbuser" id="@deptid" value="@item.Value">
                                                     <label for="@deptid" class="DEPTListItem">@item.Text</label>
                                                 </li>
                                             }
@@ -193,13 +193,13 @@
     <script src="~/Scripts/jquery-ui-1.13.2.min.js"></script>*@
 <script>
     $(document).ready(function () {
-
-        $("#todate").datepicker({
-            dateFormat: 'dd-mm-yy'
-        });
         $("#fromdate").datepicker({
             dateFormat: 'dd-mm-yy'
         });
+        $("#todate").datepicker({
+            dateFormat: 'dd-mm-yy'
+        });
+
 
 
             var DEPTcheckList = document.getElementById('list2');
@@ -210,21 +210,40 @@
                     DEPTcheckList.classList.add('visible');
             }
     });
+    var userlist = '';
+    $('.cbuser').change(function () {
+        userlist = '';
+        $(".cbuser").each(function (i, e) {
+            if (this.checked) {
+                if (i == 0) {
+                    userlist = $(this).attr('name');
+                }
+                else {
+                    userlist = userlist + ", " + $(this).attr('name');
+                }
+            }
+        });
+        $('#spanDOPM').text(userlist);
+        if (userlist == '') {
+            $('#spanDOPM').text('Select User');
+        }
+    });
 
     var todate = '';
     var fromdate = '';
 
     $("#btnSave").click(function () {
-
+        debugger;
         $(".errorMsg").text('');
 
           var id = 0;
-          id = parseInt($("#Id").val());
-          todate = $("#todate").val();
-          fromdate = $("#fromdate").val();
+        id = parseInt($("#Id").val());
+        fromdate = $("#fromdate").val();
+        todate = $("#todate").val();
+
 
         var userIds = '';
-        $(".dept").each(function (e, i) {
+        $(".cbuser").each(function (e, i) {
             if (i.checked)
                 userIds = userIds + "," + i.value;
         });
@@ -248,8 +267,8 @@
 
             var model = {
                 Id: id,
-                ToDate: todate,
                 FromDate: fromdate,
+                ToDate: todate,
                 Users: userIds
             };
 

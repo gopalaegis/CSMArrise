@@ -61,8 +61,8 @@ namespace BCInsight.Controllers
             PendingAttendanceViewModel attendance = new PendingAttendanceViewModel();
             try
             {
-                var startDate = DateTime.ParseExact(model.ToDate, "dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture);
-                var endDate = DateTime.ParseExact(model.FromDate, "dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                var startDate = DateTime.ParseExact(model.FromDate, "dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                var endDate = DateTime.ParseExact(model.ToDate, "dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture);
 
                 var totaldays = Enumerable.Range(0, (endDate - startDate).Days + 1).Select(d => startDate.AddDays(d)).ToList();
 

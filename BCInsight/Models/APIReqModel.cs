@@ -322,8 +322,8 @@ namespace BCInsight.Models
                 errorList.Add("Invalid DepartmentId");
             if (TaskId <= 0)
                 errorList.Add("Invalid TaskId");
-            //if (string.IsNullOrEmpty(Date))
-            //    errorList.Add("Invalid Date");
+            if (string.IsNullOrEmpty(Date))
+                errorList.Add("Invalid Date");
             if (errorList.Any())
             {
                 ErrorMessage = string.Join(",", errorList);
@@ -363,6 +363,7 @@ namespace BCInsight.Models
         public int UserId { get; set; }
         public int TaskId { get; set; }
         public int DepartmentId { get; set; }
+        public string Date { get; set; }
         public double Rating { get; set; }
         public string Comment { get; set; }
         public string ErrorMessage { get; set; }

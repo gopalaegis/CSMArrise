@@ -92,11 +92,11 @@
                     <h1 class="m-0">Task</h1>
                 </div><!-- /.col -->
                 @*<div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Home</a></li>
-                        <li class="breadcrumb-item active"><a href="@Url.Action("Index","Task")">Task</a></li>
-                    </ol>
-                </div*@><!-- /.col -->
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Home</a></li>
+                            <li class="breadcrumb-item active"><a href="@Url.Action("Index","Task")">Task</a></li>
+                        </ol>
+                    </div*@><!-- /.col -->
             </div><!-- /.row -->
         </div><!-- /.container-fluid -->
     </div>
@@ -147,14 +147,14 @@
                                             if (item.Selected)
                                             {
                                                 <li>
-                                                    <input type="checkbox" name="@item.Text" class="dept" id="@id" value="@item.Value" checked="checked">
+                                                    <input type="checkbox" name="@item.Text" class="cbDept" id="@id" value="@item.Value" checked="checked">
                                                     <label for="@id" class=".opmListItem">@item.Text</label>
                                                 </li>
                                             }
                                             else
                                             {
                                                 <li>
-                                                    <input type="checkbox" name="@item.Text" class="dept" id="@id" value="@item.Value">
+                                                    <input type="checkbox" name="@item.Text" class="cbDept" id="@id" value="@item.Value">
                                                     <label for="@id" class=".opmListItem">@item.Text</label>
                                                 </li>
                                             }
@@ -176,7 +176,7 @@
                 <div class="form-group row">
                     <label for="inputEmail3" class="col-sm-2 col-form-label">IsManagerTask</label>
                     <div class="col-sm-10">
-                        @Html.CheckBoxFor(x => x.IsForManager, new { @id = "ischeck"})                       
+                        @Html.CheckBoxFor(x => x.IsForManager, new { @id = "ischeck" })
                         @Html.ValidationMessageFor(m => m.TaskName, "", new { @class = "error" })
                     </div>
                 </div>
@@ -219,7 +219,25 @@
             else
                 checkList.classList.add('visible');
         }
+    });
 
+    var deptname = '';
+    $('.cbDept').change(function () {
+        deptname = '';
+        $(".cbDept").each(function (i,e) {
+            if (this.checked) {
+                if (i == 0) {
+                    deptname = $(this).attr('name');
+                }
+                else {
+                    deptname = deptname + ", " + $(this).attr('name');
+                }
+            }
+        });
+        $('#spanDOPM').text(deptname);
+        if (deptname == '') {
+            $('#spanDOPM').text('Select Department');
+        }
     });
 
     $("#btnSave").click(function () {
@@ -233,11 +251,11 @@
         var Ischecked = $('#ischeck').prop('checked');
 
         var deptIds = '';
-        $(".dept").each(function (e, i) {
+        $(".cbDept").each(function (e, i) {
             if (i.checked)
                 deptIds = deptIds + "," + i.value;
         });
-        var iserror = false;      
+        var iserror = false;
 
         if (deptIds == '') {
             iserror = true;
@@ -247,6 +265,8 @@
             iserror = true;
             $("#TaskName").addClass("red-border");
         }
+        //var text = '';
+
 
         if (!iserror) {
 

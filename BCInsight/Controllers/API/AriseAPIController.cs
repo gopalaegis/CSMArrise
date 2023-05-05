@@ -375,40 +375,41 @@ namespace BCInsight.Controllers.API
                     double perDaySalary = baseSalary / DateTime.DaysInMonth(crntYear, crntMonth);
                     double presentDaysSalary = 0;
 
-                    var attendanceList = entity.Attendance.Where(x => x.UserId == model.UserId && x.Date >= startDate && x.Date <= endDate && x.IsDeleted == false).ToList();
-
-                    if (attendanceList != null && attendanceList.Count > 0)
+                    deptList = entity.Department.Where(x => x.IsDeleted == false).ToList();
+                    userDept = entity.UserDepartment.Where(x => x.UserId == model.UserId && x.IsDeleted == false).Select(x => x.DepartmentId).ToList();
+                    if (userDept != null && userDept.Count > 0)
                     {
-                        deptList = entity.Department.Where(x => x.IsDeleted == false).ToList();
-                        userDept = entity.UserDepartment.Where(x => x.UserId == model.UserId && x.IsDeleted == false).Select(x => x.DepartmentId).ToList();
-                        if (userDept != null && userDept.Count > 0)
+                        foreach (var deptId in userDept)
                         {
-                            foreach (var deptId in userDept)
-                            {
-                                totalLeaves += deptList.Where(x => x.Id == deptId).Select(x => x.NoofLeave).FirstOrDefault() ?? 0;
+                            totalLeaves += deptList.Where(x => x.Id == deptId).Select(x => x.NoofLeave).FirstOrDefault() ?? 0;
 
-                                var holidays = entity.Holiday.Where(x => x.DepartmentId == deptId && x.Date.Year == crntYear && x.Date.Month == crntMonth && x.IsDeleted == false).ToList();
-                                foreach (var item in holidays)
-                                {
-                                    holidayList.Add(item);
-                                    holidayDates.Add(item.Date);
-                                }
+                            var holidays = entity.Holiday.Where(x => x.DepartmentId == deptId && x.Date.Year == crntYear && x.Date.Month == crntMonth && x.IsDeleted == false).ToList();
+                            foreach (var item in holidays)
+                            {
+                                holidayList.Add(item);
+                                holidayDates.Add(item.Date);
                             }
                         }
+                    }
 
-                        userLeaves = entity.LeaveRequest.Where(x => x.UserId == model.UserId && x.FromDate >= startDate && x.ToDate <= endDate &&
-                                                                (x.ApproveDays != null || x.ApproveDays > 0) && x.IsDeleted == false).ToList();
-                        if (userLeaves != null && userLeaves.Count > 0)
-                        {
-                            totalApprovedLeave = userLeaves.Select(x => x.ApproveDays).Sum() ?? 0;
+                    userLeaves = entity.LeaveRequest.Where(x => x.UserId == model.UserId && x.FromDate >= startDate && x.ToDate <= endDate &&
+                                                            (x.ApproveDays != null || x.ApproveDays > 0) && x.IsDeleted == false).ToList();
+                    if (userLeaves != null && userLeaves.Count > 0)
+                    {
+                        totalApprovedLeave = userLeaves.Select(x => x.ApproveDays).Sum() ?? 0;
 
-                            foreach (var item in userLeaves)
-                                approvedLeaveDates.Add(item.FromDate);
-                        }
+                        foreach (var item in userLeaves)
+                            approvedLeaveDates.Add(item.FromDate);
+                    }
 
+                    var attendanceList = entity.Attendance.Where(x => x.UserId == model.UserId && x.Date >= startDate && x.Date <= endDate && x.IsDeleted == false).ToList();
+
+                    //if (attendanceList != null && attendanceList.Count > 0)
+                    if (endDate >= user.CreatedOn.Value.Date)
+                    {
                         foreach (var item in monthDates)
                         {
-                            if (item >= DateTime.Now.Date)
+                            if (item >= DateTime.Now.Date || item < user.CreatedOn.Value.Date)
                                 continue;
 
                             var data = attendanceList.Where(x => x.Date == item).FirstOrDefault();
@@ -584,7 +585,7 @@ namespace BCInsight.Controllers.API
                     }
                     else
                     {
-                        return Utility.InvalidModelMessage($"User Attendance not found for the date {startDate.ToString("yyyy-MM-ddTHH:mm:ss")} to {endDate.ToString("yyyy-MM-ddTHH:mm:ss")}.");
+                        return Utility.InvalidModelMessage($"User not joined yet.");
                     }
                 }
             }
@@ -1670,7 +1671,8 @@ namespace BCInsight.Controllers.API
                     Description = taskdepartment.Remarks,
                     IsCompleted = dailyTask.IsCompleted ?? false,
                     CompletedBy = model.UserId,
-                    CompletedOn = dailyTask.CreatedOn != null ? dailyTask.CreatedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                    //CompletedOn = dailyTask.CreatedOn != null ? dailyTask.CreatedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,
+                    CompletedOn = date,
                     Rating = dailyTask.Rating,
                     RatedBy = dailyTask.RatingBy,
                     RatedOn = dailyTask.RatingOn != null ? dailyTask.RatingOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty,

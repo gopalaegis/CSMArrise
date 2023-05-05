@@ -146,14 +146,14 @@
                                             if (item.Selected)
                                             {
                                                 <li>
-                                                    <input type="checkbox" name="@item.Text" class="dept" id="@deptid" value="@item.Value" checked="checked">
+                                                    <input type="checkbox" name="@item.Text" class="cbDept" id="@deptid" value="@item.Value" checked="checked">
                                                     <label for="@deptid" class="DEPTListItem">@item.Text</label>
                                                 </li>
                                             }
                                             else
                                             {
                                                 <li>
-                                                    <input type="checkbox" name="@item.Text" class="dept" id="@deptid" value="@item.Value">
+                                                    <input type="checkbox" name="@item.Text" class="cbDept" id="@deptid" value="@item.Value">
                                                     <label for="@deptid" class="DEPTListItem">@item.Text</label>
                                                 </li>
                                             }
@@ -221,9 +221,27 @@
                     DEPTcheckList.classList.add('visible');
             }
     });
+    var deptname = '';
+    $('.cbDept').change(function () {
+        deptname = '';
+        $(".cbDept").each(function (i, e) {
+            if (this.checked) {
+                if (i == 0) {
+                    deptname = $(this).attr('name');
+                }
+                else {
+                    deptname = deptname + ", " + $(this).attr('name');
+                }
+            }
+        });
+        $('#spanDOPM').text(deptname);
+        if (deptname == '') {
+            $('#spanDOPM').text('Select Department');
+        }
+    });
 
      $("#btnSave").click(function () {
-        debugger;
+        
         $(".errorMsg").text('');
 
         var id = 0;
@@ -232,7 +250,7 @@
          var remarks = $("#Remarks").val();
 
         var deptIds = '';
-        $(".dept").each(function (e, i) {
+         $(".cbDept").each(function (e, i) {
             if (i.checked)
                 deptIds = deptIds + "," + i.value;
         });
