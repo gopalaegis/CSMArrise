@@ -1916,7 +1916,10 @@ namespace BCInsight.Controllers.API
                                     {
                                         foreach (var task in tasklist)
                                         {
-                                            var taskStatus = entity.DailyTaskStatus.Where(x => x.TaskId == task.TaskDeptId && x.UserId == item.Id && x.IsCompleted == true).FirstOrDefault();
+                                            var taskStatus = entity.DailyTaskStatus.Where(x => x.TaskId == task.TaskDeptId && x.UserId == item.Id && x.IsCompleted == true
+                                                        && x.CompletedOn.Value.Year == date.Year
+                                                        && x.CompletedOn.Value.Month == date.Month
+                                                        && x.CompletedOn.Value.Day == date.Day).FirstOrDefault();
                                             if (taskStatus != null)
                                             {
                                                 taskListObj.Add(new
@@ -1942,8 +1945,8 @@ namespace BCInsight.Controllers.API
                                                     DeletedOn = task.DeletedOn != null ? task.DeletedOn.Value.ToString("yyyy-MM-ddTHH:mm:ss") : string.Empty
                                                 });
                                             }
-                                            else
-                                                taskListObj.Add(task);
+                                            //else
+                                            //    taskListObj.Add(task);
                                         }
                                     }
 
