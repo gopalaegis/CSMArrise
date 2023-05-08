@@ -347,12 +347,14 @@ namespace BCInsight.Models
             List<string> errorList = new List<string>();
             if (UserId <= 0)
                 errorList.Add("Invalid UserId");
-            if (DepartmentId <= 0)
-                errorList.Add("Invalid DepartmentId");
+            //if (DepartmentId <= 0)
+            //    errorList.Add("Invalid DepartmentId");
             if (TaskId <= 0)
                 errorList.Add("Invalid TaskId");
             if (Rating <= 0)
                 errorList.Add("Invalid Rating");
+            if (string.IsNullOrEmpty(Date))
+                errorList.Add("Invalid Date");
             if (errorList.Any())
             {
                 ErrorMessage = string.Join(",", errorList);

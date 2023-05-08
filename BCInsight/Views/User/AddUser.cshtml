@@ -469,6 +469,7 @@
             else
                 checkList.classList.add('visible');
         }
+
         var DEPTcheckList = document.getElementById('list2');
         DEPTcheckList.getElementsByClassName('anchor1')[0].onclick = function (evt) {
             if (DEPTcheckList.classList.contains('visible'))
@@ -478,6 +479,7 @@
         }
 
     });
+
     var sitename = '';
     $('.cbSite').change(function () {
         sitename = '';
@@ -570,7 +572,7 @@
                 siteIds = siteIds + "," + i.value;
         });
         var deptIds = '';
-        $(".cbSite").each(function (e, i) {
+        $(".cbDept").each(function (e, i) {
             if (i.checked)
                 deptIds = deptIds + "," + i.value;
         });
