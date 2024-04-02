@@ -18,12 +18,14 @@ namespace BCInsight.Controllers
         ITask _task;
         IDepartment _department;
         ITaskDepartment _taskDepartment;
+        IDailytaskstatus _Dailytaskstatus;
 
-        public TaskController(ITask task, IDepartment department, ITaskDepartment taskDepartment)
+        public TaskController(ITask task, IDepartment department, ITaskDepartment taskDepartment, IDailytaskstatus dailytaskstatus)
         {
             _task = task;
             _department = department;
             _taskDepartment = taskDepartment;
+            _Dailytaskstatus = dailytaskstatus;
         }
 
         // GET: Task
@@ -47,6 +49,7 @@ namespace BCInsight.Controllers
                                     deptId = td.DepartmentId,
                                     taskRemarks = td.Remarks,
                                     isformanager = td.IsForManager ?? false,
+                                    CreatedDate = td.CreatedOn,
                                     d.CreatedBy,
                                     d.CreatedOn
                                 }).ToList();
@@ -60,7 +63,7 @@ namespace BCInsight.Controllers
                                 TaskId = item.taskId,
                                 TaskName = item.taskName,
                                 TaskRemarks = item.taskRemarks,
-                                CreatedOn = item.CreatedOn,
+                                CreatedOn = item.CreatedDate,
                                 CreatedBy = item.CreatedBy,
                                 DeptName = item.deptName,
                                 TaskDeptId = item.taskdeptId,
@@ -140,8 +143,21 @@ namespace BCInsight.Controllers
         public ActionResult AddTask(TaskViewModel model)
         {
             Tuple<bool, string> tuple = new Tuple<bool, string>(false, "somthing went wrong, please try again letter");
-            List<int> deptId = new List<int>();
-            bool Isformanager;
+
+            if (string.IsNullOrEmpty(model.DeptIds))
+            {
+                tuple = new Tuple<bool, string>(false, "Please select department");
+                return Json(tuple, JsonRequestBehavior.AllowGet);
+            }
+
+            List<int> deptIds = new List<int>();
+            var dept = model.DeptIds.Split(',');
+            foreach (var item in dept)
+            {
+                if (!string.IsNullOrWhiteSpace(item))
+                    deptIds.Add(Convert.ToInt32(item));
+            };
+
             try
             {
                 using (var entity = new admin_csmariseEntities())
@@ -159,52 +175,69 @@ namespace BCInsight.Controllers
                             _task.Edit(task);
                             _task.Save();
 
-                            var taskid = task.Id;
-
-                            if (!string.IsNullOrEmpty(model.DeptIds))
+                            var taskDeptList = entity.TaskDepartment.Where(x => x.TaskId == task.Id).ToList();
+                            foreach (var item in taskDeptList)
                             {
-                                var dept = model.DeptIds.Split(',');
-                                foreach (var item in dept)
+                                var dailyTask = entity.DailyTaskStatus.Where(x => x.TaskId == item.Id).ToList();
+                                if (!deptIds.Contains(item.DepartmentId))
                                 {
-                                    if (!string.IsNullOrWhiteSpace(item))
-                                        deptId.Add(Convert.ToInt32(item));
-                                };
-
-                                var deptlist = entity.TaskDepartment.Where(x => x.TaskId == task.Id).ToList() ?? new List<TaskDepartment>();
-
-                                if (model.IsForManager == true)
-                                {
-                                    Isformanager = true;
-                                }
-                                else
-                                {
-                                    Isformanager = false;
-                                }
-
-                                foreach (var deptid in deptlist)
-                                {
-                                    entity.TaskDepartment.Remove(deptid);
-                                    entity.SaveChanges();
-                                }
-
-                                if (deptId.Count > 0)
-                                {
-                                    foreach (var d in deptId)
+                                    entity.TaskDepartment.Remove(item);
+                                    var isDelete = entity.SaveChanges();
+                                    if (isDelete > 0)
                                     {
-                                        TaskDepartment taskDept = new TaskDepartment()
+                                        foreach (var dTask in dailyTask)
                                         {
-                                            TaskId = task.Id,
-                                            DepartmentId = d,
-                                            Remarks = model.TaskRemarks,
-                                            CreatedBy = LoginUserId(),
-                                            CreatedOn = DateTime.Now,
-                                            IsDeleted = false,
-                                            IsForManager = Isformanager
-
-                                        };
-                                        entity.TaskDepartment.Add(taskDept);
-                                        entity.SaveChanges();
+                                            entity.DailyTaskStatus.Remove(dTask);
+                                            entity.SaveChanges();
+                                        }
                                     }
+                                }
+                            }
+
+                            var taskDepIds = _taskDepartment.FindBy(x => x.TaskId == task.Id).Select(x => x.DepartmentId).ToList();
+                            var taskDeps = taskDeptList.Where(x => x.TaskId == task.Id).ToList();
+
+                            var notExistDeptIds = deptIds.Except(taskDepIds).ToList();
+                            if (notExistDeptIds.Any())
+                            {
+                                foreach (var deptId in notExistDeptIds)
+                                {
+                                    var taskDept = _taskDepartment.FindBy(x => x.TaskId == -1).FirstOrDefault() ?? new TaskDepartment();
+                                    taskDept.TaskId = task.Id;
+                                    taskDept.DepartmentId = deptId;
+                                    taskDept.Remarks = model.TaskRemarks;
+                                    taskDept.CreatedBy = LoginUserId();
+                                    taskDept.CreatedOn = DateTime.Now;
+                                    taskDept.IsDeleted = false;
+
+                                    if (model.IsForManager)
+                                        taskDept.IsForManager = true;
+                                    else
+                                        taskDept.IsForManager = false;
+
+                                    _taskDepartment.Add(taskDept);
+                                    _taskDepartment.Save();
+                                }
+                            }
+
+                            foreach (var td in taskDeps)
+                            {
+                                if (deptIds.Contains(td.DepartmentId))
+                                {
+                                    td.TaskId = task.Id;
+                                    td.DepartmentId = td.DepartmentId;
+                                    td.Remarks = model.TaskRemarks;
+                                    td.ModifiedBy = LoginUserId();
+                                    td.ModifiedOn = DateTime.Now;
+                                    td.IsDeleted = false;
+
+                                    if (model.IsForManager)
+                                        td.IsForManager = true;
+                                    else
+                                        td.IsForManager = false;
+
+                                    _taskDepartment.Edit(td);
+                                    _taskDepartment.Save();
                                 }
                             }
                             TempData["success"] = "Record updated successfully";
@@ -219,18 +252,16 @@ namespace BCInsight.Controllers
                     }
                     else
                     {
-
-                        Task usertask = new Task()
+                        Task task = new Task()
                         {
                             TaskName = model.TaskName,
                             Remarks = model.TaskRemarks,
                             CreatedBy = LoginUserId(),
                             CreatedOn = DateTime.Now,
-                            IsDeleted = false,
-
+                            IsDeleted = false
                         };
 
-                        entity.Task.Add(usertask);
+                        entity.Task.Add(task);
                         var save = entity.SaveChanges();
                         if (save <= 0)
                         {
@@ -239,41 +270,29 @@ namespace BCInsight.Controllers
                             return Json(tuple, JsonRequestBehavior.AllowGet);
                         }
 
-                        var taskId = usertask.Id;
+                        var taskId = task.Id;
                         if (!string.IsNullOrEmpty(model.DeptIds))
                         {
-                            var dept = model.DeptIds.Split(',');
-                            foreach (var item in dept)
+                            if (deptIds.Count > 0)
                             {
-                                if (!string.IsNullOrWhiteSpace(item))
-                                    deptId.Add(Convert.ToInt32(item));
-                            };
-
-                            if (model.IsForManager == true)
-                            {
-                                Isformanager = true;
-                            }
-                            else
-                            {
-                                Isformanager = false;
-                            }
-
-
-                            if (deptId.Count > 0)
-                            {
-                                foreach (var d in deptId)
+                                foreach (var d in deptIds)
                                 {
-                                    TaskDepartment taskDepartment = new TaskDepartment()
+                                    TaskDepartment taskDept = new TaskDepartment()
                                     {
                                         TaskId = taskId,
                                         Remarks = model.TaskRemarks,
                                         DepartmentId = d,
                                         CreatedBy = LoginUserId(),
                                         CreatedOn = DateTime.Now,
-                                        IsDeleted = false,
-                                        IsForManager = Isformanager
+                                        IsDeleted = false
                                     };
-                                    entity.TaskDepartment.Add(taskDepartment);
+
+                                    if (model.IsForManager)
+                                        taskDept.IsForManager = true;
+                                    else
+                                        taskDept.IsForManager = false;
+
+                                    entity.TaskDepartment.Add(taskDept);
                                     entity.SaveChanges();
                                 }
                             }
@@ -326,23 +345,3 @@ namespace BCInsight.Controllers
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

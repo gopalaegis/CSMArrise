@@ -185,12 +185,12 @@
                 <div class="col-sm-6">
                     <h1 class="m-0">User</h1>
                 </div><!-- /.col -->
-                <div class="col-sm-6">
+                @*<div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Home</a></li>
                         <li class="breadcrumb-item active"><a href="@Url.Action("Index","Site")">User</a></li>
                     </ol>
-                </div><!-- /.col -->
+                </div>*@<!-- /.col -->
             </div><!-- /.row -->
         </div><!-- /.container-fluid -->
     </div>
@@ -330,14 +330,14 @@
                                             if (item.Selected)
                                             {
                                                 <li>
-                                                    <input type="checkbox" name="@item.Text" class="cbOPM" id="@id" value="@item.Value" checked="checked">
+                                                    <input type="checkbox" name="@item.Text" class="cbSite" id="@id" value="@item.Value" checked="checked">
                                                     <label for="@id" class="opmListItem">@item.Text</label>
                                                 </li>
                                             }
                                             else
                                             {
                                                 <li>
-                                                    <input type="checkbox" name="@item.Text" class="cbOPM" id="@id" value="@item.Value">
+                                                    <input type="checkbox" name="@item.Text" class="cbSite" id="@id" value="@item.Value">
                                                     <label for="@id" class="opmListItem">@item.Text</label>
                                                 </li>
                                             }
@@ -373,14 +373,14 @@
                                             if (item.Selected)
                                             {
                                                 <li>
-                                                    <input type="checkbox" name="@item.Text" class="dept" id="@deptid" value="@item.Value" checked="checked">
+                                                    <input type="checkbox" name="@item.Text" class="cbDept" id="@deptid" value="@item.Value" checked="checked">
                                                     <label for="@deptid" class="DEPTListItem">@item.Text</label>
                                                 </li>
                                             }
                                             else
                                             {
                                                 <li>
-                                                    <input type="checkbox" name="@item.Text" class="dept" id="@deptid" value="@item.Value">
+                                                    <input type="checkbox" name="@item.Text" class="cbDept" id="@deptid" value="@item.Value">
                                                     <label for="@deptid" class="DEPTListItem">@item.Text</label>
                                                 </li>
                                             }
@@ -469,6 +469,7 @@
             else
                 checkList.classList.add('visible');
         }
+
         var DEPTcheckList = document.getElementById('list2');
         DEPTcheckList.getElementsByClassName('anchor1')[0].onclick = function (evt) {
             if (DEPTcheckList.classList.contains('visible'))
@@ -477,6 +478,44 @@
                 DEPTcheckList.classList.add('visible');
         }
 
+    });
+
+    var sitename = '';
+    $('.cbSite').change(function () {
+        sitename = '';
+        $(".cbSite").each(function (i, e) {
+            if (this.checked) {
+                if (i == 0) {
+                    sitename = $(this).attr('name');
+                }
+                else {
+                    sitename = sitename + ", " + $(this).attr('name');
+                }
+            }
+        });
+        $('#spanOPM').text(sitename);
+        if (sitename == '') {
+            $('#spanOPM').text('Select Site');
+        }
+    });
+
+    var deptname = '';
+    $('.cbDept').change(function () {
+        deptname = '';
+        $(".cbDept").each(function (i, e) {
+            if (this.checked) {
+                if (i == 0) {
+                    deptname = $(this).attr('name');
+                }
+                else {
+                    deptname = deptname + ", " + $(this).attr('name');
+                }
+            }
+        });
+        $('#spanDOPM').text(deptname);
+        if (deptname == '') {
+            $('#spanDOPM').text('Select Department');
+        }
     });
 
     $('input[name="Mobile"]').keyup(function (e) {
@@ -528,12 +567,12 @@
         var weekdays = $("#weekdays").val();
 
         var siteIds = '';
-        $(".cbOPM").each(function (e, i) {
+        $(".cbSite").each(function (e, i) {
             if (i.checked)
                 siteIds = siteIds + "," + i.value;
         });
         var deptIds = '';
-        $(".dept").each(function (e, i) {
+        $(".cbDept").each(function (e, i) {
             if (i.checked)
                 deptIds = deptIds + "," + i.value;
         });
