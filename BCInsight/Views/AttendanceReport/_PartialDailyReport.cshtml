@@ -1,0 +1,57 @@
+﻿@model IEnumerable<BCInsight.Models.AttendanceViewModel>
+
+@if (Model != null)
+{
+    <table id="DailydataTable" class="display responsive nowrap" style="width:100%">
+        <thead>
+            <tr>
+                <th>
+                    User Name
+                </th>
+                <th>
+                   Date
+                </th>
+                <th>
+                    Clock In time
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+            <tr>
+                <td>
+                    @item.UserName
+                </td>
+                <td>
+                    @item.Date.ToString("dd-MM-yyyy")
+                </td>
+                <td>
+                    @item.ClockIn.Value.TimeOfDay.Hours : @item.ClockIn.Value.TimeOfDay.Minutes
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+<script>
+    
+        $('#DailydataTable').dataTable({
+            bSort: false,
+            dom: 'Blfrtip', //'Blfrtip',
+            sScrollX: true,
+            sScrollY: true,
+            //lengthMenu: [
+            //    [10, 25, 50, -1],
+            //    [10, 25, 50, 'All'],
+            //],
+            buttons: [{
+                extend: 'excelHtml5',
+                text: 'Export to Excel',
+                //autoFilter: true,
+                sheetName: 'Daily_User_Attendance',
+                title: 'Daily_User_Attendance'
+            }]
+        });
+    
+</script>

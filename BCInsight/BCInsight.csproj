@@ -231,6 +231,7 @@
     <Compile Include="Code\SendEmail.cs" />
     <Compile Include="Controllers\AdvancePaymentController.cs" />
     <Compile Include="Controllers\API\AriseAPIController.cs" />
+    <Compile Include="Controllers\AttendanceReportController.cs" />
     <Compile Include="Controllers\AttendanceRequestController.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\DashBoardController.cs" />
@@ -253,6 +254,7 @@
     <Compile Include="Models\AdvancePaymentViewModel.cs" />
     <Compile Include="Models\APIReqModel.cs" />
     <Compile Include="Models\ApiResult.cs" />
+    <Compile Include="Models\AttendanceReportViewModel.cs" />
     <Compile Include="Models\AttendanceViewModel.cs" />
     <Compile Include="Models\ClockInRequestViewModel.cs" />
     <Compile Include="Models\DailyTaskStatusViewModel.cs" />
@@ -2342,6 +2344,16 @@
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="Scripts\JQueryDataTable\1.13.4\buttons.html5.min.js" />
+    <Content Include="Scripts\JQueryDataTable\1.13.4\dataTables.buttons.min.js" />
+    <Content Include="Scripts\JQueryDataTable\1.13.4\jquery.dataTables.min.js" />
+    <Content Include="Scripts\JQueryDataTable\1.13.4\jszip.min.js" />
+    <Content Include="Scripts\JQueryDataTable\dataTables.buttons.min.js" />
+    <Content Include="Scripts\JQueryDataTable\dataTables.responsive.min.js" />
+    <Content Include="Scripts\JQueryDataTable\jquery.dataTables.min.css" />
+    <Content Include="Scripts\JQueryDataTable\jquery.dataTables.min.js" />
+    <Content Include="Scripts\JQueryDataTable\jszip.min.js" />
+    <Content Include="Scripts\JQueryDataTable\responsive.dataTables.min.css" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Scripts\popper-utils.js" />
     <Content Include="Scripts\popper-utils.min.js" />
@@ -2465,6 +2477,9 @@
     <Content Include="Views\Task\Index.cshtml" />
     <Content Include="Views\Task\AddTask.cshtml" />
     <Content Include="Views\PendingAttendance\Index.cshtml" />
+    <Content Include="Views\AttendanceReport\Index.cshtml" />
+    <Content Include="Views\AttendanceReport\_PartialDailyReport.cshtml" />
+    <Content Include="Views\AttendanceReport\_PartialMonthlyReport.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

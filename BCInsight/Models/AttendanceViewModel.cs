@@ -27,5 +27,6 @@ namespace BCInsight.Models
         public string Description { get; set; }
         public bool IsMannualReq { get; set; }
         public bool IsApprove { get; set; }
+        public int DaysInMonth { get; set; }
     }
 }

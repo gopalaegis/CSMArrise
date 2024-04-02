@@ -1,0 +1,197 @@
+﻿@using BCInsight.Models;
+@{
+    ViewBag.Title = "Attendance Report";
+}
+<link href="~/Content/themes/base/jquery-ui.min.css" rel="stylesheet" />
+<style>
+/*        .MonthlydataTable_scrollBody {
+        overflow-x: initial !important;
+        overflow-y: visible !important;
+    }
+
+    .MonthlydataTable_scrollHead {
+        overflow: visible !important;
+    }*/
+    select.custom-select.custom-select-sm.form-control.form-control-sm {
+        width: 45px;
+    }
+    #DailydataTable_wrapper{
+        width:100%;
+    }
+</style>
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Attendance Report</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index","Home")">Home</a></li>
+                    <li class="breadcrumb-item active">Attendance Report</li>
+                </ol>
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <span class="error">@TempData["errorMessage"]</span>
+        <br />
+        <div class="form-group row">
+            <div class="col-sm-5">
+                Daily : <input id="chkDaily" type="radio" name="reportType" value="Daily" checked="checked" />
+            </div>
+            <div class="col-sm-5">
+                Monthly : <input id="chkMonthly" type="radio" name="reportType" value="Monthly" />
+            </div>
+
+        </div>
+
+        <div class="form-group row" id="DailyDiv">
+
+            <label for="inputEmail3" class="col-sm-2 col-form-label">Select Date:</label>
+            <div class="col-sm-3">
+                <input type="text" id="datepicker" placeholder="Select Date" class="form-control" />
+            </div>
+            <input type="button" id="btnDailyReport" value="Show Reoprt" class="btn btn-primary" onclick="GetDailyReport();" />
+        </div>
+        <div class="form-group row" id="MonthlyDiv" style="display:none">
+
+            <label for="inputEmail3" class="col-sm-2 col-form-label">Select Year:</label>
+            <div class="col-sm-3">
+                @Html.DropDownList("ddlYear", new SelectList(ViewBag.YearList, "Value", "Text"), new { @class = "form-control", @id = "ddlYearid" })
+            </div>
+            <label for="inputEmail3" class="col-sm-2 col-form-label">Select Month:</label>
+            <div class="col-sm-3">
+                @Html.DropDownList("ddlMonth", new SelectList(ViewBag.MonthList, "Value", "Text"), new { @class = "form-control", @id = "ddlMonthid" })
+            </div>
+            <input type="button" id="btnMonthReport" value="Show Reoprt" class="btn btn-primary" onclick="GetMonthReport()" />
+        </div>
+
+    </div>
+    <!-- /.card-body -->
+    <div class="row" id="partialDailyData">
+        @Html.Partial("_PartialDailyReport", (AttendanceViewModel)Model)
+    </div>
+    <div class="row" id="partialMonthlyData" style="overflow-x:scroll">
+        @Html.Partial("_PartialMonthlyReport", (AttendanceViewModel)Model)
+    </div>
+</div>
+
+
+<link href="~/Scripts/JQueryDataTable/jquery.dataTables.min.css" rel="stylesheet" />
+<!--<link href="~/Scripts/JQueryDataTable/responsive.dataTables.min.css" rel="stylesheet" />-->
+<link href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css" rel="stylesheet" />
+<script src="~/Scripts/JQueryDataTable/1.13.4/jquery.dataTables.min.js"></script>
+<script src="~/Scripts/JQueryDataTable/1.13.4/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/JQueryDataTable/1.13.4/jszip.min.js"></script>
+<script src="~/Scripts/JQueryDataTable/1.13.4/buttons.html5.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+
+            //$('#MonthlydataTable').dataTable({
+            //    bSort: false,
+            //    dom: 'Bfplrti', //'Blfrtip',
+            //    sScrollX: true,
+            //    sScrollY: true,
+            //    lengthMenu: [
+            //        [10, 25, 50, -1],
+            //        [10, 25, 50, 'All'],
+            //    ],
+            //    buttons: [{
+            //        extend: 'excelHtml5',
+            //        text: 'Export to Excel',
+            //        autoFilter: true,
+            //        sheetName: 'Monthly_User_Attendance'
+            //    }]
+            //});
+         
+        
+        $("#datepicker").datepicker({
+            ///*changeMonth: tru*/e,
+            //changeYear: true,
+            dateFormat: 'dd-mm-yy'
+            
+        });
+        $("#datepicker").datepicker("setDate", new Date());
+        $('input[type=radio][name=reportType]').change(function () {
+            if (this.value == 'Daily') {
+                $("#DailyDiv").show();
+                $("#MonthlyDiv").hide();
+            }
+            else {
+                $("#DailyDiv").hide();
+                $("#MonthlyDiv").show();
+            }
+        });
+    });
+    $(function () {
+        $('#Yearpicker').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            showButtonPanel: true,
+            dateFormat: 'MM yy',
+            onClose: function (dateText, inst) {
+                var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+                var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+                $(this).datepicker('setDate', new Date(year, month, 1));
+            }
+        });
+    });
+    function GetDailyReport() {
+        $("#partialMonthlyData").hide();
+        var date = $("#datepicker").val();
+        if (date == null || date == undefined || date == "") {
+            $(".error").html("Please select Valid date.");
+            return false();
+        }
+        else {
+            var dataToSend = {
+                reportdate: $("#datepicker").val()
+            };
+            $.ajax({
+                        url: "@Url.Action("FetchDailyData", "AttendanceReport")",
+                        data: dataToSend,
+                        type: "Get",
+                        error: function (xmlHttpRequest, errorText, thrownError)
+                        {
+                            //alert(xmlHttpRequest + "|" + errorText + "|" + thrownError);
+                        },
+                        success: function (data)
+                        {
+                            $("#partialDailyData").show();
+                            $("#partialDailyData").html(data);
+                        }
+                    });
+        }
+    }
+
+    function GetMonthReport() {
+        $("#partialDailyData").hide();
+        var month = $('#ddlMonthid :selected').text();
+        var year = $('#ddlYearid :selected').text();
+
+
+        var dataToSend = {
+            Month: parseInt(month),
+            Year: parseInt(year)
+            };
+        $.ajax({
+            url: "@Url.Action("FetchMonthlyData", "AttendanceReport")",
+            data: dataToSend,
+            type: "Get",
+            error: function (xmlHttpRequest, errorText, thrownError) {
+                //alert(xmlHttpRequest + "|" + errorText + "|" + thrownError);
+            },
+            success: function (data) {
+                $("#partialMonthlyData").show();
+                $("#partialMonthlyData").html(data);
+            }
+        });
+
+    }
+</script>

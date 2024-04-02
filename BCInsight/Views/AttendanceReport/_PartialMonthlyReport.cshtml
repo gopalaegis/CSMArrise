@@ -1,0 +1,96 @@
+﻿@model IEnumerable<BCInsight.Models.AttendanceViewModel>
+
+@if (Model != null)
+{
+    <table id="MonthlydataTable" class="display responsive nowrap">
+        <thead>
+            <tr>
+                <th>
+                    User Name
+                </th>
+                @*<th>
+                        Clock In time
+                    </th>*@
+                <th>
+                    Year
+                </th>
+                <th>
+                    Month
+                </th>
+                @for (int i = 1; i <= Model.FirstOrDefault().DaysInMonth; i++)
+                {
+                    <th>
+                        Day @i.ToString()
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.GroupBy(x => x.UserName).Select(x => x.First()))
+            {
+                int y = 1;
+                <tr>
+                    <td>
+                        @item.UserName
+                    </td>
+                    <td>
+                        @item.Date.Year
+                    </td>
+                    <td>
+                        @item.Date.Month
+                    </td>
+                    @foreach (var item2 in Model.Where(x => x.UserName == item.UserName))
+                    {
+
+                        for (int i = y; i <= Model.FirstOrDefault().DaysInMonth; i++)
+                        {
+
+                            if (item2.Date.Day == i)
+                            {
+                                <td>
+                                    @item2.ClockIn.Value.TimeOfDay.Hours : @item2.ClockIn.Value.TimeOfDay.Minutes
+                                </td>
+                                y++;
+                                break;
+                            }
+                            else
+                            {
+                                y++;
+                                <td>
+                                    -
+                                </td>
+                            }
+                        }
+                    }
+                    @for (int i = y; i <= Model.FirstOrDefault().DaysInMonth; i++)
+                    {
+                        <td>
+                            -
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<script>
+
+    $('#MonthlydataTable').dataTable({
+        bSort: false,
+        dom: 'Blfrtip', //'Blfrtip',
+        sScrollX: true,
+        sScrollY: true,
+        //lengthMenu: [
+        //    [10, 25, 50, -1],
+        //    [10, 25, 50, 'All'],
+        //],
+        buttons: [{
+            extend: 'excelHtml5',
+            text: 'Export to Excel',
+            //autoFilter: true,
+            sheetName: 'Monthly_User_Attendance',
+            title: 'Monthly_User_Attendance'
+        }]
+    });
+
+</script>
